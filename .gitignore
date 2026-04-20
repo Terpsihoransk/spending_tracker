@@ -79,3 +79,4 @@ fabric.properties
 .env
 
 /plans/
+/backend/target/
