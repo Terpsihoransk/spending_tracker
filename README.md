@@ -13,11 +13,11 @@
 ## Структура проекта
 - `backend/` - Spring Boot приложение с REST API
 - `plans/` - планы и документация
-- `.env` - конфигурация секретов (не в git)
+- `.env` - конфигурация секретов
 - `pom.xml` - корневой Maven файл
 
 ## Запуск
 1. Настроить .env файл с ключами Google API
 2. Запустить backend: `mvn spring-boot:run` в папке backend
-3. Собрать Android приложение в Android Studio
+3. Собрать Android приложение
 
