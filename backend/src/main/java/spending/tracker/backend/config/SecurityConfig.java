@@ -14,14 +14,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/home", true)
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
+                .anyRequest().permitAll()
             );
         return http.build();
     }

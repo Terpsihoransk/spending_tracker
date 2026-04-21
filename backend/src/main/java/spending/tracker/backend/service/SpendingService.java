@@ -1,6 +1,6 @@
 package spending.tracker.backend.service;
 
-import spending.tracker.backend.model.Spending;
+import spending.tracker.backend.entity.Spending;
 import spending.tracker.backend.repository.SpendingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

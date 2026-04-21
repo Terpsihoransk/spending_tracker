@@ -1,25 +1,22 @@
 package spending.tracker.backend.controller;
 
-import spending.tracker.backend.model.Spending;
+import spending.tracker.backend.entity.Spending;
 import spending.tracker.backend.service.SpendingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/spendings")
+@RequestMapping("api/v1/spendings")
 public class SpendingController {
 
     @Autowired
     private SpendingService spendingService;
 
     @GetMapping
-    public List<Spending> getAllSpendings(@AuthenticationPrincipal OAuth2User principal) {
-        String userId = principal.getAttribute("email");
+    public List<Spending> getAllSpendings(@RequestHeader("X-User-Email") String userId) {
         return spendingService.getAllSpendings(userId);
     }
 
@@ -31,8 +28,8 @@ public class SpendingController {
     }
 
     @PostMapping
-    public Spending createSpending(@RequestBody Spending spending, @AuthenticationPrincipal OAuth2User principal) {
-        spending.setUserId(principal.getAttribute("email"));
+    public Spending createSpending(@RequestBody Spending spending, @RequestHeader("X-User-Email") String userId) {
+        spending.setUserId(userId);
         return spendingService.createSpending(spending);
     }
 
