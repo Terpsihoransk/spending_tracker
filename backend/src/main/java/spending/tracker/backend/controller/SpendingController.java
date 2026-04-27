@@ -24,8 +24,8 @@ public class SpendingController {
     private final SpendingService spendingService;
 
     @GetMapping
-    public List<SpendingDto> getAllSpending(@RequestHeader("X-User-Email") String userId) {
-        return spendingService.getAllSpending(userId);
+    public List<SpendingDto> getAllSpending(@RequestHeader("X-User-Email") String userEmail) {
+        return spendingService.getAllSpending(userEmail);
     }
 
     @GetMapping("/{id}")
@@ -34,8 +34,8 @@ public class SpendingController {
     }
 
     @PostMapping
-    public SpendingDto createSpending(@RequestBody SpendingDto spendingDto, @RequestHeader("X-User-Email") String userId) {
-        spendingDto.setUserId(userId);
+    public SpendingDto createSpending(@RequestBody SpendingDto spendingDto, @RequestHeader("X-User-Email") String userEmail) {
+        spendingDto.setUserEmail(userEmail);
         return spendingService.createSpending(spendingDto);
     }
 

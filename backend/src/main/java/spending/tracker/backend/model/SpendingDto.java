@@ -6,10 +6,10 @@ import java.time.LocalDate;
 
 @Data
 public class SpendingDto {
-    private Long id;
+    private String id;
     private BigDecimal amount;
     private String category;
     private LocalDate date;
     private String description;
-    private String userId;
+    private String userEmail;
 }

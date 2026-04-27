@@ -35,10 +35,9 @@ public class SpendingDataService {
 
     public SpendingModel save(SpendingModel spendingModel) {
         Spending spending = spendingMapper.toEntity(spendingModel);
-        if (spendingModel.getUserId() != null) {
-            var user = userRepository.findById(spendingModel.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            String.format("Пользователь с email %s не найден", spendingModel.getUserId())));
+        if (spendingModel.getUserEmail() != null) {
+            //todo //.orElseThrow(()->new IllegalArgumentException(String.format("Пользователь с email %s не найден", spendingModel.getUserEmail())));
+            var user = userRepository.findByEmail(spendingModel.getUserEmail());
             spending.setUser(user);
         }
         Spending savedSpending = spendingRepository.save(spending);

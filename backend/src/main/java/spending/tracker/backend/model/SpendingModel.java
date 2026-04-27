@@ -11,5 +11,5 @@ public class SpendingModel {
     private String category;
     private LocalDate date;
     private String description;
-    private String userId;
+    private String userEmail;
 }
