@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import spending.tracker.backend.entity.User;
 import spending.tracker.backend.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,5 +20,9 @@ public class UserDataService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }
