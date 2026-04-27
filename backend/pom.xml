@@ -13,21 +13,16 @@
     <groupId>spending.tracker.backend</groupId>
     <artifactId>spending-tracker-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <name>spending-tracker-backend</name>
     <description>Spending Tracker Backend</description>
 
-    <repositories>
-        <repository>
-            <id>google-maven-central</id>
-            <name>Google Maven Central</name>
-            <url>https://maven.google.com</url>
-        </repository>
-    </repositories>
-
     <properties>
         <java.version>25</java.version>
+        <maven-compiler.version>3.15.0</maven-compiler.version>
+        <lombok.version>1.18.44</lombok.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <dotenv.version>5.2.2</dotenv.version>
+        <google-api.version>2.9.0</google-api.version>
     </properties>
 
     <dependencies>
@@ -50,12 +45,23 @@
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>2.2.0</version>
+            <version>${google-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>java-dotenv</artifactId>
+            <version>${dotenv.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -63,9 +69,9 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>java-dotenv</artifactId>
-            <version>5.2.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -74,6 +80,48 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-Xlint:none</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,17 +1,16 @@
 package spending.tracker.backend.service;
 
-import spending.tracker.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserDataService userDataService;
 
     public boolean userExists(String email) {
-        return userRepository.existsById(email);
+        return userDataService.findByEmail(email).isPresent();
     }
 
 }

@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface SpendingRepository extends JpaRepository<Spending, Long> {
 
-    List<Spending> findByUserId(String userId);
+    List<Spending> findByUserEmail(String email);
 
 }

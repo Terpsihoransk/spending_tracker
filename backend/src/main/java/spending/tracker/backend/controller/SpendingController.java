@@ -1,50 +1,56 @@
 package spending.tracker.backend.controller;
 
-import spending.tracker.backend.entity.Spending;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import spending.tracker.backend.model.MessageDto;
+import spending.tracker.backend.model.SpendingDto;
 import spending.tracker.backend.service.SpendingService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/spendings")
+@RequestMapping("api/v1/spending")
+@RequiredArgsConstructor
 public class SpendingController {
 
-    @Autowired
-    private SpendingService spendingService;
+    private final SpendingService spendingService;
 
     @GetMapping
-    public List<Spending> getAllSpendings(@RequestHeader("X-User-Email") String userId) {
-        return spendingService.getAllSpendings(userId);
+    public List<SpendingDto> getAllSpending(@RequestHeader("X-User-Email") String userId) {
+        return spendingService.getAllSpending(userId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Spending> getSpendingById(@PathVariable Long id) {
-        return spendingService.getSpendingById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public SpendingDto getSpendingById(@PathVariable Long id) {
+        return spendingService.getSpendingById(id);
     }
 
     @PostMapping
-    public Spending createSpending(@RequestBody Spending spending, @RequestHeader("X-User-Email") String userId) {
-        spending.setUserId(userId);
-        return spendingService.createSpending(spending);
+    public SpendingDto createSpending(@RequestBody SpendingDto spendingDto, @RequestHeader("X-User-Email") String userId) {
+        spendingDto.setUserId(userId);
+        return spendingService.createSpending(spendingDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Spending> updateSpending(@PathVariable Long id, @RequestBody Spending spendingDetails) {
-        Spending updatedSpending = spendingService.updateSpending(id, spendingDetails);
-        if (updatedSpending != null) {
-            return ResponseEntity.ok(updatedSpending);
-        }
-        return ResponseEntity.notFound().build();
+    public SpendingDto updateSpending(@PathVariable Long id, @RequestBody SpendingDto spendingDto) {
+        return spendingService.updateSpending(id, spendingDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSpending(@PathVariable Long id) {
-        spendingService.deleteSpending(id);
-        return ResponseEntity.noContent().build();
+    public MessageDto deleteSpending(@PathVariable Long id) {
+        boolean deleted = spendingService.deleteSpending(id);
+        if (deleted) {
+            return new MessageDto("запись успешно удалена");
+        } else {
+            return new MessageDto("запись не найдена");
+        }
     }
 }

@@ -1,45 +1,45 @@
 package spending.tracker.backend.service;
 
-import spending.tracker.backend.entity.Spending;
-import spending.tracker.backend.repository.SpendingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import spending.tracker.backend.mapper.SpendingMapper;
+import spending.tracker.backend.model.SpendingDto;
+import spending.tracker.backend.model.SpendingModel;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class SpendingService {
 
-    @Autowired
-    private SpendingRepository spendingRepository;
+    private final SpendingDataService spendingDataService;
+    private final SpendingMapper spendingMapper;
 
-    public List<Spending> getAllSpendings(String userId) {
-        return spendingRepository.findByUserId(userId);
+    public List<SpendingDto> getAllSpending(String userId) {
+        return spendingDataService.findAllByUserId(userId).stream()
+                .map(spendingMapper::toDto)
+                .toList();
     }
 
-    public Optional<Spending> getSpendingById(Long id) {
-        return spendingRepository.findById(id);
+    public SpendingDto getSpendingById(Long id) {
+        SpendingModel model = spendingDataService.findById(id);
+        return spendingMapper.toDto(model);
     }
 
-    public Spending createSpending(Spending spending) {
-        return spendingRepository.save(spending);
+    public SpendingDto createSpending(SpendingDto spendingDto) {
+        SpendingModel model = spendingMapper.toModel(spendingDto);
+        SpendingModel savedModel = spendingDataService.save(model);
+        return spendingMapper.toDto(savedModel);
     }
 
-    public Spending updateSpending(Long id, Spending spendingDetails) {
-        Optional<Spending> optionalSpending = spendingRepository.findById(id);
-        if (optionalSpending.isPresent()) {
-            Spending spending = optionalSpending.get();
-            spending.setAmount(spendingDetails.getAmount());
-            spending.setCategory(spendingDetails.getCategory());
-            spending.setDate(spendingDetails.getDate());
-            spending.setDescription(spendingDetails.getDescription());
-            return spendingRepository.save(spending);
-        }
-        return null;
+    public SpendingDto updateSpending(Long id, SpendingDto spendingDto) {
+        SpendingModel existingModel = spendingDataService.findById(id);
+        spendingMapper.updateModel(spendingDto, existingModel);
+        SpendingModel updatedModel = spendingDataService.save(existingModel);
+        return spendingMapper.toDto(updatedModel);
     }
 
-    public void deleteSpending(Long id) {
-        spendingRepository.deleteById(id);
+    public boolean deleteSpending(Long id) {
+        return spendingDataService.deleteById(id);
     }
 }
