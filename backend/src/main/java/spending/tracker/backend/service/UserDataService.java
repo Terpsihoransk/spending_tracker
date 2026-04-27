@@ -14,7 +14,7 @@ public class UserDataService {
     private final UserRepository userRepository;
 
     public Optional<User> findByEmail(String email) {
-        return userRepository.findById(email);
+        return Optional.ofNullable(userRepository.findByEmail(email));
     }
 
     public User save(User user) {
