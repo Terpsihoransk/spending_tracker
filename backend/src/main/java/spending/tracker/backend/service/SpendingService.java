@@ -2,8 +2,10 @@ package spending.tracker.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import spending.tracker.backend.dto.SpendingRequest;
+import spending.tracker.backend.dto.SpendingResponse;
+import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
-import spending.tracker.backend.model.SpendingDto;
 import spending.tracker.backend.model.SpendingModel;
 
 import java.util.List;
@@ -14,27 +16,32 @@ public class SpendingService {
 
     private final SpendingDataService spendingDataService;
     private final SpendingMapper spendingMapper;
+    private final UserDataService userDataService;
 
-    public List<SpendingDto> getAllSpending(String userId) {
-        return spendingDataService.findAllByUserId(userId).stream()
+    public List<SpendingResponse> getAllSpending(String userEmail) {
+        return spendingDataService.findAllByUserEmail(userEmail).stream()
                 .map(spendingMapper::toDto)
                 .toList();
     }
 
-    public SpendingDto getSpendingById(Long id) {
+    public SpendingResponse getSpendingById(Long id) {
         SpendingModel model = spendingDataService.findById(id);
         return spendingMapper.toDto(model);
     }
 
-    public SpendingDto createSpending(SpendingDto spendingDto) {
-        SpendingModel model = spendingMapper.toModel(spendingDto);
+    public SpendingResponse createSpending(SpendingRequest spendingRequest, String userEmail) {
+        userDataService.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+        
+        SpendingModel model = spendingMapper.toModel(spendingRequest, userEmail);
+        model.setUserEmail(userEmail);
         SpendingModel savedModel = spendingDataService.save(model);
         return spendingMapper.toDto(savedModel);
     }
 
-    public SpendingDto updateSpending(Long id, SpendingDto spendingDto) {
+    public SpendingResponse updateSpending(Long id, SpendingRequest spendingRequest) {
         SpendingModel existingModel = spendingDataService.findById(id);
-        spendingMapper.updateModel(spendingDto, existingModel);
+        spendingMapper.updateModel(spendingRequest, existingModel);
         SpendingModel updatedModel = spendingDataService.save(existingModel);
         return spendingMapper.toDto(updatedModel);
     }

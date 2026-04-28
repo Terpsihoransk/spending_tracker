@@ -2,9 +2,10 @@ package spending.tracker.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import spending.tracker.backend.dto.UserRequest;
+import spending.tracker.backend.dto.UserResponse;
 import spending.tracker.backend.entity.User;
 import spending.tracker.backend.mapper.UserMapper;
-import spending.tracker.backend.model.UserDto;
 import spending.tracker.backend.model.UserModel;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class UserService {
         return userDataService.findByEmail(email).isPresent();
     }
 
-    public UserDto saveUser(UserDto userDto) {
-        UserModel userModel = userMapper.toModel(userDto);
+    public UserResponse saveUser(UserRequest userRequest) {
+        UserModel userModel = userMapper.toModel(userRequest);
         User user = new User();
         user.setEmail(userModel.getEmail());
         user.setGoogleSheetsId(userModel.getGoogleSheetsId());
@@ -33,7 +34,7 @@ public class UserService {
         return userMapper.toDto(savedModel);
     }
 
-    public List<UserDto> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         List<User> users = userDataService.findAll();
         return users.stream()
                 .map(user -> {

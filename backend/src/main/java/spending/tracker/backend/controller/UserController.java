@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import spending.tracker.backend.model.UserDto;
+import spending.tracker.backend.dto.UserRequest;
+import spending.tracker.backend.dto.UserResponse;
 import spending.tracker.backend.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -27,8 +29,8 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User created successfully")
     })
     @PostMapping
-    public UserDto createUser(@RequestBody UserDto userDto) {
-        return userService.saveUser(userDto);
+    public UserResponse createUser(@RequestBody UserRequest userRequest) {
+        return userService.saveUser(userRequest);
     }
 
     @Operation(summary = "Get all users")
@@ -36,7 +38,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully")
     })
     @GetMapping
-    public List<UserDto> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 }

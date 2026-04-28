@@ -10,7 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import spending.tracker.backend.model.ErrorResponse;
+import spending.tracker.backend.dto.ErrorResponse;
 
 import java.util.HashMap;
 import java.util.Map;
