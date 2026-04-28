@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,6 +39,12 @@ public class UserControllerTest extends BaseSpringBootTest {
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetAllUsers() throws Exception {
+        mockMvc.perform(get("/api/v1/user"))
                 .andExpect(status().isOk());
     }
 }
