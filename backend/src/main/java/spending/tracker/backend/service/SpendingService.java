@@ -27,8 +27,9 @@ public class SpendingService {
                 .toList();
     }
 
-    public SpendingResponse getSpendingById(Long id) {
+    public SpendingResponse getSpendingById(Long id, String userEmail) {
         var model = spendingDataService.findById(id);
+        model.setUserEmail(userEmail);
         return spendingMapper.toDto(model);
     }
 
@@ -42,15 +43,20 @@ public class SpendingService {
         return spendingMapper.toDto(savedModel);
     }
 
-    public SpendingResponse updateSpending(Long id, SpendingRequest spendingRequest) {
+    public SpendingResponse updateSpending(Long id, SpendingRequest spendingRequest, String userEmail) {
         var existingModel = spendingDataService.findById(id);
-        spendingMapper.updateModel(spendingRequest, existingModel);
+        spendingMapper.updateModel(spendingRequest, existingModel, userEmail);
+        existingModel.setUserEmail(userEmail);
         existingModel.setDate(LocalDate.now());
         var updatedModel = spendingDataService.save(existingModel);
         return spendingMapper.toDto(updatedModel);
     }
 
-    public void deleteSpending(Long id) {
+    public void deleteSpending(Long id, String userEmail) {
+        var spending = spendingDataService.findById(id);
+        if (!spending.getUserEmail().equals(userEmail)) {
+            throw new ResourceNotFoundException("Spending", "id", id.toString());
+        }
         spendingDataService.deleteById(id);
     }
 }

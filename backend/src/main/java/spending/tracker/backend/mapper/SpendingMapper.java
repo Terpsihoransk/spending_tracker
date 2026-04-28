@@ -20,12 +20,11 @@ public interface SpendingMapper {
     SpendingResponse toDto(SpendingModel model);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "userEmail", ignore = true)
     @Mapping(target = "date", ignore = true)
     SpendingModel toModel(SpendingRequest request, String userEmail);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "userEmail", ignore = true)
     @Mapping(target = "date", ignore = true)
-    void updateModel(SpendingRequest request, @MappingTarget SpendingModel model);
+    @Mapping(target = "userEmail", source = "userEmail")
+    void updateModel(SpendingRequest request, @MappingTarget SpendingModel model, String userEmail);
 }

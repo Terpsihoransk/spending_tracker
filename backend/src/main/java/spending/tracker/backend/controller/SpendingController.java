@@ -47,8 +47,9 @@ public class SpendingController {
     })
     @GetMapping("/{id}")
     public SpendingResponse getSpendingById(@Parameter(description = "Spending ID", required = true, example = "1")
-                                            @PathVariable Long id) {
-        return spendingService.getSpendingById(id);
+                                            @PathVariable Long id,
+                                            @RequestHeader("X-User-Email") String userEmail) {
+        return spendingService.getSpendingById(id, userEmail);
     }
 
     @Operation(summary = "Create new spending")
@@ -70,8 +71,9 @@ public class SpendingController {
     @PutMapping("/{id}")
     public SpendingResponse updateSpending(@Parameter(description = "Spending ID", required = true, example = "1")
                                            @PathVariable Long id,
-                                           @Valid @RequestBody SpendingRequest spendingRequest) {
-        return spendingService.updateSpending(id, spendingRequest);
+                                           @Valid @RequestBody SpendingRequest spendingRequest,
+                                           @RequestHeader("X-User-Email") String userEmail) {
+        return spendingService.updateSpending(id, spendingRequest, userEmail);
     }
 
     @Operation(summary = "Delete spending by ID")
@@ -81,7 +83,8 @@ public class SpendingController {
     })
     @DeleteMapping("/{id}")
     public void deleteSpending(@Parameter(description = "Spending ID", required = true, example = "1")
-                               @PathVariable Long id) {
-        spendingService.deleteSpending(id);
+                               @PathVariable Long id,
+                               @RequestHeader("X-User-Email") String userEmail) {
+        spendingService.deleteSpending(id, userEmail);
     }
 }
