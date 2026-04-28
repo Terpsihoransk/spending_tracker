@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,6 +18,8 @@ import spending.tracker.backend.dto.ErrorResponse;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RestControllerAdvice
@@ -104,6 +107,39 @@ public class GlobalExceptionHandler {
             AuthenticationException ex, HttpServletRequest request) {
         log.warn("Authentication failed: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEntity(
+            DuplicateEntityException ex, HttpServletRequest request) {
+        log.warn("Duplicate entity: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_ENTITY", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ForeignKeyException.class)
+    public ResponseEntity<ErrorResponse> handleForeignKey(
+            ForeignKeyException ex, HttpServletRequest request) {
+        log.warn("Foreign key violation: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "FOREIGN_KEY_VIOLATION", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+        log.warn("Data integrity violation: {}", ex.getMessage());
+        
+        String message = ex.getMessage();
+        if (message != null && (message.contains("unique") || message.contains("Duplicate"))) {
+            return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_ENTITY", 
+                "Entity with specified data already exists", request);
+        }
+        if (message != null && message.contains("foreign key")) {
+            return buildResponse(HttpStatus.BAD_REQUEST, "FOREIGN_KEY_VIOLATION",
+                "Referenced entity does not exist", request);
+        }
+        
+        return buildResponse(HttpStatus.CONFLICT, "DATA_INTEGRITY_VIOLATION", 
+            "Data integrity constraint violation", request);
     }
 
     @ExceptionHandler(Exception.class)
