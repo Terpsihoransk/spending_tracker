@@ -33,6 +33,6 @@ public class Spending {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "email", referencedColumnName = "email")
+    @JoinColumn(name = "user_id")
     private User user;
 }

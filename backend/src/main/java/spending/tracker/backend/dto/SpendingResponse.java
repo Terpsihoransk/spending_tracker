@@ -12,8 +12,8 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Schema(description = "Spending record DTO")
 public class SpendingResponse {
 
-    @Schema(description = "Unique identifier", example = "1", requiredMode = NOT_REQUIRED)
-    private String id;
+    @Schema(description = "Unique identifier", example = "1", requiredMode = REQUIRED)
+    private Long id;
 
     @Schema(description = "Spending amount", example = "150.00", requiredMode = REQUIRED)
     private BigDecimal amount;

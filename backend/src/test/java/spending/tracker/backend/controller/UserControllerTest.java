@@ -19,6 +19,8 @@ public class UserControllerTest extends BaseSpringBootTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.googleSheetsId").value("sheet123"));
     }

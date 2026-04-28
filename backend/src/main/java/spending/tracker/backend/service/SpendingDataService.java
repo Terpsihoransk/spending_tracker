@@ -3,11 +3,11 @@ package spending.tracker.backend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import spending.tracker.backend.entity.Spending;
 import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.model.SpendingModel;
 import spending.tracker.backend.repository.SpendingRepository;
+import spending.tracker.backend.repository.UserRepository;
 
 import java.util.List;
 
@@ -17,10 +17,11 @@ import java.util.List;
 public class SpendingDataService {
 
     private final SpendingRepository spendingRepository;
+    private final UserRepository userRepository;
     private final SpendingMapper spendingMapper;
 
-    public List<SpendingModel> findAllByUserEmail(String userEmail) {
-        return spendingRepository.findByUserEmail(userEmail).stream()
+    public List<SpendingModel> findAllByUserId(Long userId) {
+        return spendingRepository.findByUser_Id(userId).stream()
                 .map(spendingMapper::toModel)
                 .toList();
     }
@@ -31,9 +32,18 @@ public class SpendingDataService {
                 .orElseThrow(() -> new ResourceNotFoundException("Spending", "id", id));
     }
 
+    public SpendingModel save(SpendingModel spendingModel, Long userId) {
+        var spending = spendingMapper.toEntity(spendingModel);
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        spending.setUser(user);
+        var savedSpending = spendingRepository.save(spending);
+        return spendingMapper.toModel(savedSpending);
+    }
+
     public SpendingModel save(SpendingModel spendingModel) {
-        Spending spending = spendingMapper.toEntity(spendingModel);
-        Spending savedSpending = spendingRepository.save(spending);
+        var spending = spendingMapper.toEntity(spendingModel);
+        var savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);
     }
 
