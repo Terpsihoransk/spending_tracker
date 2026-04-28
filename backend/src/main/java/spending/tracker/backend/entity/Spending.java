@@ -26,7 +26,9 @@ public class Spending {
 
     private BigDecimal amount;
 
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     private LocalDate date;
 

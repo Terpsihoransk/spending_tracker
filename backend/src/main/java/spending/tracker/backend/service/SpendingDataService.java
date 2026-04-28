@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.model.SpendingModel;
+import spending.tracker.backend.repository.CategoryRepository;
 import spending.tracker.backend.repository.SpendingRepository;
 import spending.tracker.backend.repository.UserRepository;
 
@@ -18,6 +19,7 @@ public class SpendingDataService {
 
     private final SpendingRepository spendingRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final SpendingMapper spendingMapper;
 
     public List<SpendingModel> findAllByUserId(Long userId) {
@@ -37,6 +39,11 @@ public class SpendingDataService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         spending.setUser(user);
+
+        var category = categoryRepository.findById(spendingModel.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
+        spending.setCategory(category);
+
         var savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);
     }
@@ -47,6 +54,11 @@ public class SpendingDataService {
             var user = userRepository.findByEmail(spendingModel.getUserEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("User", "email", spendingModel.getUserEmail()));
             spending.setUser(user);
+        }
+        if (spendingModel.getCategoryId() != null) {
+            var category = categoryRepository.findById(spendingModel.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
+            spending.setCategory(category);
         }
         var savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);

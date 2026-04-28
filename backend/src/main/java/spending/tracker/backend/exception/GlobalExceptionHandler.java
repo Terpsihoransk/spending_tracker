@@ -116,6 +116,20 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_ENTITY", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(DuplicateCategoryException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCategory(
+            DuplicateCategoryException ex, HttpServletRequest request) {
+        log.warn("Duplicate category: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_CATEGORY", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    public ResponseEntity<ErrorResponse> handleCategoryInUse(
+            CategoryInUseException ex, HttpServletRequest request) {
+        log.warn("Category in use: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "CATEGORY_IN_USE", ex.getMessage(), request);
+    }
+
     @ExceptionHandler(ForeignKeyException.class)
     public ResponseEntity<ErrorResponse> handleForeignKey(
             ForeignKeyException ex, HttpServletRequest request) {

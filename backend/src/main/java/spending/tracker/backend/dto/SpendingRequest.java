@@ -18,9 +18,9 @@ public class SpendingRequest {
     @Schema(description = "Spending amount", example = "150.00", requiredMode = REQUIRED)
     private BigDecimal amount;
 
-    @NotBlank(message = "category is required")
-    @Schema(description = "Category name", example = "food", requiredMode = REQUIRED)
-    private String category;
+    @NotNull(message = "categoryId is required")
+    @Schema(description = "Category ID", example = "1", requiredMode = REQUIRED)
+    private Long categoryId;
 
     @Schema(description = "Spending description", example = "Lunch at restaurant", requiredMode = NOT_REQUIRED)
     private String description;

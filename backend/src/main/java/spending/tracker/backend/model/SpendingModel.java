@@ -8,7 +8,8 @@ import java.time.LocalDate;
 public class SpendingModel {
     private Long id;
     private BigDecimal amount;
-    private String category;
+    private Long categoryId;
+    private String categoryName;
     private LocalDate date;
     private String description;
     private String userEmail;

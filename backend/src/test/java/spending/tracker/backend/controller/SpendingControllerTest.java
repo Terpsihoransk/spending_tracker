@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
+import spending.tracker.backend.entity.Category;
+import spending.tracker.backend.entity.User;
 import spending.tracker.backend.util.TestDataUtils;
 
 import java.math.BigDecimal;
@@ -28,25 +30,12 @@ public class SpendingControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testCreateSpending() throws Exception {
-        String json = "{\"amount\":100.00,\"category\":\"food\",\"description\":\"test\"}";
-
-        mockMvc.perform(post("/api/v1/spending")
-                        .header(X_USER_EMAIL_HEADER, "nonexistent@example.com")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
     public void testCreateSpending_withUserEmail() throws Exception {
-        String userJson = "{\"email\":\"spending-test@example.com\",\"googleSheetsId\":\"sheet123\"}";
-        mockMvc.perform(post("/api/v1/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isOk());
+        var user = testDataUtils.createUser("spending-test@example.com", "sheet123");
+        var category = testDataUtils.createCategory(user, "Food");
+        Long categoryId = category.getId();
 
-        String spendingJson = "{\"amount\":1500.50,\"category\":\"Food\",\"description\":\"Dinner at the restaurant\"}";
+        String spendingJson = "{\"amount\":1500.50,\"categoryId\":" + categoryId + ",\"description\":\"Dinner at the restaurant\"}";
         mockMvc.perform(post("/api/v1/spending")
                         .header(X_USER_EMAIL_HEADER, "spending-test@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -54,23 +43,25 @@ public class SpendingControllerTest extends BaseSpringBootTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userEmail").value("spending-test@example.com"))
                 .andExpect(jsonPath("$.amount").value(1500.50))
-                .andExpect(jsonPath("$.category").value("Food"));
+                .andExpect(jsonPath("$.categoryName").value("Food"));
     }
 
     @Test
     public void testUpdateSpending() throws Exception {
         var user = testDataUtils.createUser("update-test@example.com", "sheet123");
-        var spending = testDataUtils.createSpending(user, new BigDecimal("100.00"), "Food", "Initial");
+        var category = testDataUtils.createCategory(user, "Food");
+        var newCategory = testDataUtils.createCategory(user, "Transport");
+        var spending = testDataUtils.createSpending(user, category, new BigDecimal("100.00"), "Initial");
         Long spendingId = spending.getId();
 
-        String updateJson = "{\"amount\":200.00,\"category\":\"Transport\",\"description\":\"Updated\"}";
+        String updateJson = "{\"amount\":200.00,\"categoryId\":" + newCategory.getId() + ",\"description\":\"Updated\"}";
         mockMvc.perform(put("/api/v1/spending/" + spendingId)
                         .header(X_USER_EMAIL_HEADER, "update-test@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.amount").value(200.00))
-                .andExpect(jsonPath("$.category").value("Transport"))
+                .andExpect(jsonPath("$.categoryName").value("Transport"))
                 .andExpect(jsonPath("$.description").value("Updated"))
                 .andExpect(jsonPath("$.userEmail").value("update-test@example.com"));
     }

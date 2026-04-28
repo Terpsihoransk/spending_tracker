@@ -18,12 +18,11 @@ public class SpendingResponse {
     @Schema(description = "Spending amount", example = "150.00", requiredMode = REQUIRED)
     private BigDecimal amount;
 
-    @Schema(description = "Category name", example = "food", requiredMode = REQUIRED)
-    private String category;
+    @Schema(description = "Category name", example = "Food", requiredMode = REQUIRED)
+    private String categoryName;
 
     @Schema(description = "Date of spending", example = "2024-01-15", requiredMode = REQUIRED)
     private LocalDate date;
-
 
     @Schema(description = "Spending description", example = "Lunch at restaurant", requiredMode = NOT_REQUIRED)
     private String description;

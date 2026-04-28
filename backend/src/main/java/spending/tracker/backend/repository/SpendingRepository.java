@@ -11,4 +11,6 @@ public interface SpendingRepository extends JpaRepository<Spending, Long> {
 
     List<Spending> findByUser_Id(Long userId);
 
+    boolean existsByCategory_Id(Long categoryId);
+
 }
