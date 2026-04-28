@@ -1,4 +1,4 @@
-package spending.tracker.backend.exception;
+package spending.tracker.backend.exception.type;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -18,5 +18,6 @@ public interface UserMapper {
     UserModel toModel(User entity);
 
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "subCategories", ignore = true)
     User toEntity(UserModel userModel);
 }

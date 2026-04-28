@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
-import spending.tracker.backend.exception.ResourceNotFoundException;
+import spending.tracker.backend.exception.type.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.service.data.SpendingDataService;
 import spending.tracker.backend.service.data.UserDataService;

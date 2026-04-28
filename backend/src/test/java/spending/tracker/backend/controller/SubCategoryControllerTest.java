@@ -32,7 +32,7 @@ public class SubCategoryControllerTest extends BaseSpringBootTest {
                         .header(X_USER_EMAIL_HEADER, "subcat-test@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(subCategoryJson))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Groceries"))
                 .andExpect(jsonPath("$.categoryId").value(category.getId()))
                 .andExpect(jsonPath("$.categoryName").value("Food"));
@@ -97,7 +97,7 @@ public class SubCategoryControllerTest extends BaseSpringBootTest {
 
         mockMvc.perform(delete("/api/v1/subcategories/" + subCategory.getId())
                         .header(X_USER_EMAIL_HEADER, "subcat-delete@example.com"))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test

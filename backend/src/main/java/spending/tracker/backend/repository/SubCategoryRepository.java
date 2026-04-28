@@ -12,8 +12,6 @@ public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> 
 
     Optional<SubCategory> findByIdAndUser_Id(Long id, Long userId);
 
-    boolean existsByCategory_IdAndName(Long categoryId, String name);
-
     boolean existsByCategory_IdAndNameAndUser_Email(Long categoryId, String name, String userEmail);
 
     boolean existsByCategory_IdAndNameAndIdNot(Long categoryId, String name, Long id);

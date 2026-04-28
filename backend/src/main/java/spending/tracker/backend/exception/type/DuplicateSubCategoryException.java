@@ -1,4 +1,4 @@
-package spending.tracker.backend.exception;
+package spending.tracker.backend.exception.type;
 
 public class DuplicateSubCategoryException extends RuntimeException {
 
