@@ -44,10 +44,8 @@ public class SpendingDataService {
     public SpendingModel save(SpendingModel spendingModel) {
         var spending = spendingMapper.toEntity(spendingModel);
         if (spending.getUser() == null && spendingModel.getUserEmail() != null) {
-            var user = userRepository.findByEmail(spendingModel.getUserEmail());
-            if (user == null) {
-                throw new ResourceNotFoundException("User", "email", spendingModel.getUserEmail());
-            }
+            var user = userRepository.findByEmail(spendingModel.getUserEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "email", spendingModel.getUserEmail()));
             spending.setUser(user);
         }
         var savedSpending = spendingRepository.save(spending);

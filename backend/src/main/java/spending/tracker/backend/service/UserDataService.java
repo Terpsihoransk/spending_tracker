@@ -17,11 +17,8 @@ public class UserDataService {
     private final UserMapper userMapper;
 
     public Optional<UserModel> findByEmail(String email) {
-        var user = userRepository.findByEmail(email);
-        if (user == null) {
-            return Optional.empty();
-        }
-        return Optional.of(userMapper.toModel(user));
+        return userRepository.findByEmail(email)
+                .map(userMapper::toModel);
     }
 
     public UserModel save(UserModel userModel) {

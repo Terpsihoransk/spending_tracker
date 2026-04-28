@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
 import spending.tracker.backend.service.SpendingService;
+import spending.tracker.backend.validation.ValidEmailHeader;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class SpendingController {
     })
     @GetMapping
     public List<SpendingResponse> getAllSpending(@Parameter(description = "User email", required = true, example = "user@example.com")
-                                                 @RequestHeader("X-User-Email") String userEmail) {
+                                                 @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.getAllSpending(userEmail);
     }
 
@@ -48,7 +49,7 @@ public class SpendingController {
     @GetMapping("/{id}")
     public SpendingResponse getSpendingById(@Parameter(description = "Spending ID", required = true, example = "1")
                                             @PathVariable Long id,
-                                            @RequestHeader("X-User-Email") String userEmail) {
+                                            @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.getSpendingById(id, userEmail);
     }
 
@@ -59,7 +60,7 @@ public class SpendingController {
     @PostMapping
     public SpendingResponse createSpending(@Parameter(description = "User email", required = true, example = "user@example.com")
                                            @Valid @RequestBody SpendingRequest spendingRequest,
-                                           @RequestHeader("X-User-Email") String userEmail) {
+                                           @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.createSpending(spendingRequest, userEmail);
     }
 
@@ -72,7 +73,7 @@ public class SpendingController {
     public SpendingResponse updateSpending(@Parameter(description = "Spending ID", required = true, example = "1")
                                            @PathVariable Long id,
                                            @Valid @RequestBody SpendingRequest spendingRequest,
-                                           @RequestHeader("X-User-Email") String userEmail) {
+                                           @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.updateSpending(id, spendingRequest, userEmail);
     }
 
@@ -84,7 +85,7 @@ public class SpendingController {
     @DeleteMapping("/{id}")
     public void deleteSpending(@Parameter(description = "Spending ID", required = true, example = "1")
                                @PathVariable Long id,
-                               @RequestHeader("X-User-Email") String userEmail) {
+                               @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         spendingService.deleteSpending(id, userEmail);
     }
 }

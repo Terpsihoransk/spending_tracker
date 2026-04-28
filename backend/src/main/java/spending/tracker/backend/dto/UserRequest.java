@@ -1,6 +1,7 @@
 package spending.tracker.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 public class UserRequest {
 
     @NotBlank(message = "email is required")
+    @Email(message = "Invalid email format")
     @Schema(description = "User email", example = "user@example.com", requiredMode = REQUIRED)
     private String email;
 
