@@ -1,4 +1,4 @@
-package spending.tracker.backend.service;
+package spending.tracker.backend.service.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,25 +29,16 @@ public class CategoryDataService {
                 .toList();
     }
 
-    public CategoryModel findById(Long id) {
-        return categoryRepository.findById(id)
-                .map(categoryMapper::toModel)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
-    }
-
     public CategoryModel findByIdAndUserId(Long id, Long userId) {
         return categoryRepository.findByIdAndUser_Id(id, userId)
                 .map(categoryMapper::toModel)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
-    public CategoryModel save(CategoryModel categoryModel, Long userId) {
-        var category = categoryMapper.toEntity(categoryModel);
-        var user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        category.setUser(user);
-        var savedCategory = categoryRepository.save(category);
-        return categoryMapper.toModel(savedCategory);
+    public CategoryModel findById(Long id) {
+        return categoryRepository.findById(id)
+                .map(categoryMapper::toModel)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
     public CategoryModel save(CategoryModel categoryModel) {
@@ -62,11 +53,13 @@ public class CategoryDataService {
     }
 
     public void deleteById(Long id) {
-        var category = categoryRepository.findById(id)
+        categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
 
         if (spendingRepository.existsByCategory_Id(id)) {
-            throw new CategoryInUseException(id);
+            throw new CategoryInUseException(
+                    String.format("Cannot delete category with id %d because it is referenced by existing spendings", id),
+                    id);
         }
 
         categoryRepository.deleteById(id);

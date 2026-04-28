@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import spending.tracker.backend.dto.CategoryRequest;
 import spending.tracker.backend.dto.CategoryResponse;
-import spending.tracker.backend.entity.Category;
 import spending.tracker.backend.exception.DuplicateCategoryException;
 import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.CategoryMapper;
 import spending.tracker.backend.repository.CategoryRepository;
 import spending.tracker.backend.repository.UserRepository;
+import spending.tracker.backend.service.data.CategoryDataService;
+import spending.tracker.backend.service.data.UserDataService;
 
 import java.util.List;
 

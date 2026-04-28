@@ -10,6 +10,8 @@ public class SpendingModel {
     private BigDecimal amount;
     private Long categoryId;
     private String categoryName;
+    private Long subcategoryId;
+    private String subcategoryName;
     private LocalDate date;
     private String description;
     private String userEmail;

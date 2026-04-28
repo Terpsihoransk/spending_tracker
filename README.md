@@ -21,3 +21,6 @@
 2. Запустить backend: `mvn spring-boot:run` в папке backend
 3. Собрать Android приложение
 
+## Спецификация
+
+http://localhost:8081/swagger-ui/index.html#/

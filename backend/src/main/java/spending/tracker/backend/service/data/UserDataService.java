@@ -1,4 +1,4 @@
-package spending.tracker.backend.service;
+package spending.tracker.backend.service.data;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

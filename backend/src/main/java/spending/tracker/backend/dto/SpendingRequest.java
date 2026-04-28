@@ -1,7 +1,6 @@
 package spending.tracker.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -21,6 +20,9 @@ public class SpendingRequest {
     @NotNull(message = "categoryId is required")
     @Schema(description = "Category ID", example = "1", requiredMode = REQUIRED)
     private Long categoryId;
+
+    @Schema(description = "SubCategory ID (optional)", example = "2", requiredMode = NOT_REQUIRED)
+    private Long subcategoryId;
 
     @Schema(description = "Spending description", example = "Lunch at restaurant", requiredMode = NOT_REQUIRED)
     private String description;

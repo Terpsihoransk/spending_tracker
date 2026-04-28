@@ -6,6 +6,7 @@ import spending.tracker.backend.dto.UserRequest;
 import spending.tracker.backend.dto.UserResponse;
 import spending.tracker.backend.mapper.UserMapper;
 import spending.tracker.backend.model.UserModel;
+import spending.tracker.backend.service.data.UserDataService;
 
 import java.util.List;
 

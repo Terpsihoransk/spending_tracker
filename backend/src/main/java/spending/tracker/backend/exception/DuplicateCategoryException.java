@@ -1,5 +1,8 @@
 package spending.tracker.backend.exception;
 
+import lombok.Getter;
+
+@Getter
 public class DuplicateCategoryException extends RuntimeException {
 
     private final String categoryName;
@@ -11,11 +14,4 @@ public class DuplicateCategoryException extends RuntimeException {
         this.userEmail = userEmail;
     }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
 }

@@ -6,6 +6,8 @@ import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
 import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
+import spending.tracker.backend.service.data.SpendingDataService;
+import spending.tracker.backend.service.data.UserDataService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,7 +50,7 @@ public class SpendingService {
         spendingMapper.updateModel(spendingRequest, existingModel, userEmail);
         existingModel.setUserEmail(userEmail);
         existingModel.setDate(LocalDate.now());
-        var updatedModel = spendingDataService.save(existingModel);
+        var updatedModel = spendingDataService.updateSpending(existingModel);
         return spendingMapper.toDto(updatedModel);
     }
 

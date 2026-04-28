@@ -1,4 +1,4 @@
-package spending.tracker.backend.service;
+package spending.tracker.backend.service.data;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,7 @@ import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.model.SpendingModel;
 import spending.tracker.backend.repository.CategoryRepository;
 import spending.tracker.backend.repository.SpendingRepository;
+import spending.tracker.backend.repository.SubCategoryRepository;
 import spending.tracker.backend.repository.UserRepository;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class SpendingDataService {
     private final SpendingRepository spendingRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final SubCategoryRepository subCategoryRepository;
     private final SpendingMapper spendingMapper;
 
     public List<SpendingModel> findAllByUserId(Long userId) {
@@ -44,11 +46,17 @@ public class SpendingDataService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
         spending.setCategory(category);
 
+        if (spendingModel.getSubcategoryId() != null) {
+            var subCategory = subCategoryRepository.findById(spendingModel.getSubcategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("SubCategory", "id", spendingModel.getSubcategoryId()));
+            spending.setSubCategory(subCategory);
+        }
+
         var savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);
     }
 
-    public SpendingModel save(SpendingModel spendingModel) {
+    public SpendingModel updateSpending(SpendingModel spendingModel) {
         var spending = spendingMapper.toEntity(spendingModel);
         if (spending.getUser() == null && spendingModel.getUserEmail() != null) {
             var user = userRepository.findByEmail(spendingModel.getUserEmail())
@@ -59,6 +67,11 @@ public class SpendingDataService {
             var category = categoryRepository.findById(spendingModel.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
             spending.setCategory(category);
+        }
+        if (spendingModel.getSubcategoryId() != null) {
+            var subCategory = subCategoryRepository.findById(spendingModel.getSubcategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("SubCategory", "id", spendingModel.getSubcategoryId()));
+            spending.setSubCategory(subCategory);
         }
         var savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);

@@ -1,5 +1,8 @@
 package spending.tracker.backend.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ForeignKeyException extends RuntimeException {
 
     private final String referencedEntity;
@@ -11,11 +14,4 @@ public class ForeignKeyException extends RuntimeException {
         this.field = field;
     }
 
-    public String getReferencedEntity() {
-        return referencedEntity;
-    }
-
-    public String getField() {
-        return field;
-    }
 }

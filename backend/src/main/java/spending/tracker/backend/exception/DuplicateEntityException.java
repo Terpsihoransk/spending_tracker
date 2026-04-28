@@ -1,5 +1,8 @@
 package spending.tracker.backend.exception;
 
+import lombok.Getter;
+
+@Getter
 public class DuplicateEntityException extends RuntimeException {
 
     private final String field;
@@ -11,11 +14,4 @@ public class DuplicateEntityException extends RuntimeException {
         this.value = value;
     }
 
-    public String getField() {
-        return field;
-    }
-
-    public String getValue() {
-        return value;
-    }
 }

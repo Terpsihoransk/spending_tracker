@@ -13,4 +13,6 @@ public interface SpendingRepository extends JpaRepository<Spending, Long> {
 
     boolean existsByCategory_Id(Long categoryId);
 
+    boolean existsBySubCategory_Id(Long subCategoryId);
+
 }

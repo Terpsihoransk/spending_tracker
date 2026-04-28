@@ -1,4 +1,4 @@
-package spending.tracker.backend.exception;
+package spending.tracker.backend.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -12,14 +12,21 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spending.tracker.backend.dto.ErrorResponse;
+import spending.tracker.backend.exception.CategoryInUseException;
+import spending.tracker.backend.exception.DuplicateCategoryException;
+import spending.tracker.backend.exception.DuplicateEntityException;
+import spending.tracker.backend.exception.DuplicateSubCategoryException;
+import spending.tracker.backend.exception.ForeignKeyException;
+import spending.tracker.backend.exception.InvalidEmailException;
+import spending.tracker.backend.exception.ResourceNotFoundException;
+import spending.tracker.backend.exception.SubCategoryInUseException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @RestControllerAdvice
@@ -44,6 +51,13 @@ public class GlobalExceptionHandler {
             MissingRequestHeaderException ex, HttpServletRequest request) {
         log.warn("Missing required header: {}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "MISSING_REQUIRED_HEADER", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
+        log.warn("Missing required parameter: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "MISSING_REQUIRED_PARAMETER", ex.getMessage(), request);
     }
 
     @ExceptionHandler(InvalidEmailException.class)
@@ -128,6 +142,20 @@ public class GlobalExceptionHandler {
             CategoryInUseException ex, HttpServletRequest request) {
         log.warn("Category in use: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, "CATEGORY_IN_USE", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateSubCategoryException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateSubCategory(
+            DuplicateSubCategoryException ex, HttpServletRequest request) {
+        log.warn("Duplicate subCategory: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_SUBCATEGORY", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(SubCategoryInUseException.class)
+    public ResponseEntity<ErrorResponse> handleSubCategoryInUse(
+            SubCategoryInUseException ex, HttpServletRequest request) {
+        log.warn("SubCategory in use: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "SUBCATEGORY_IN_USE", ex.getMessage(), request);
     }
 
     @ExceptionHandler(ForeignKeyException.class)
