@@ -1,34 +1,25 @@
 # Spending Tracker
 
-Приложение для учета личных расходов с синхронизацией в Google Sheets.
+Приложение для учёта личных расходов с синхронизацией в Google Sheets.
 
-## Версия
+**Версия**: v0.0.1 (MVP1)
 
-v0.0.1
+## Архитектура
 
-## Стадия разработки
-
-MVP1
-
-## Описание
-Мобильное приложение (Android) для фиксации расходов по категориям, просмотра сводок и синхронизации данных с облаком через REST API backend.
-
-## Стек технологий
-- **Backend**: Java 25, Spring Boot 4.0.4, Spring Security, OAuth 2.0, JPA/H2, Maven
-- **Frontend**: Android (Kotlin), Room (SQLite), Retrofit, MPAndroidChart
-- **Интеграции**: Google Sheets API, Google OAuth
-
-## Структура проекта
-- `backend/` - Spring Boot приложение с REST API
-- `plans/` - планы и документация
-- `.env` - конфигурация секретов
-- `pom.xml` - корневой Maven файл
+```
+Android (Kotlin) → REST API (Java 25/Spring Boot) → Google Sheets
+```
 
 ## Запуск
-1. Настроить .env файл с ключами Google API
-2. Запустить backend: `mvn spring-boot:run` в папке backend
-3. Собрать Android приложение
 
-## Спецификация
+```bash
+# Backend
+cd backend && mvn spring-boot:run
 
-http://localhost:8081/swagger-ui/index.html#/
+# Swagger UI
+http://localhost:8081/swagger-ui/index.html
+```
+
+## Подробности
+
+См. [AGENTS.md](AGENTS.md) для полной документации.
