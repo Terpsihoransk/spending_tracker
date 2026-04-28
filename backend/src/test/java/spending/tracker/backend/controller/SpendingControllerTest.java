@@ -1,11 +1,11 @@
 package spending.tracker.backend.controller;
 
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
-import spending.tracker.backend.entity.Category;
-import spending.tracker.backend.entity.User;
 import spending.tracker.backend.util.TestDataUtils;
 
 import java.math.BigDecimal;
@@ -23,14 +23,18 @@ public class SpendingControllerTest extends BaseSpringBootTest {
     private TestDataUtils testDataUtils;
 
     @Test
-    public void testGetAllSpending() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть все траты пользователя")
+    public void testGetAllSpending() {
         mockMvc.perform(get("/api/v1/spending")
                         .header(X_USER_EMAIL_HEADER, "test@example.com"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void testCreateSpending_withUserEmail() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен создать трату с валидным email пользователя")
+    public void testCreateSpending_withUserEmail() {
         var user = testDataUtils.createUser("spending-test@example.com", "sheet123");
         var category = testDataUtils.createCategory(user, "Food");
         Long categoryId = category.getId();
@@ -47,7 +51,9 @@ public class SpendingControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testUpdateSpending() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен обновить трату пользователя")
+    public void testUpdateSpending() {
         var user = testDataUtils.createUser("update-test@example.com", "sheet123");
         var category = testDataUtils.createCategory(user, "Food");
         var newCategory = testDataUtils.createCategory(user, "Transport");
@@ -67,7 +73,9 @@ public class SpendingControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testDeleteSpending_notFound() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть 404 Not Found при удалении несуществующей траты")
+    public void testDeleteSpending_notFound() {
         mockMvc.perform(delete("/api/v1/spending/999")
                         .header(X_USER_EMAIL_HEADER, "test@example.com"))
                 .andExpect(status().isNotFound());

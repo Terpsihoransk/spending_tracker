@@ -1,5 +1,7 @@
 package spending.tracker.backend.controller;
 
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
@@ -12,7 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest extends BaseSpringBootTest {
 
     @Test
-    public void testCreateUser() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен создать пользователя с валидными email и googleSheetsId")
+    public void testCreateUser() {
         String json = "{\"email\":\"unique_test_" + System.currentTimeMillis() + "@example.com\",\"googleSheetsId\":\"sheet_unique_" + System.currentTimeMillis() + "\"}";
 
         mockMvc.perform(post("/api/v1/user")
@@ -24,7 +28,9 @@ public class UserControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testCreateUser_missingEmail() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть 400 Bad Request когда email отсутствует")
+    public void testCreateUser_missingEmail() {
         String json = "{\"googleSheetsId\":\"sheet123_" + System.currentTimeMillis() + "\"}";
 
         mockMvc.perform(post("/api/v1/user")
@@ -34,7 +40,9 @@ public class UserControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testCreateUser_emptyBody() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть 400 Bad Request когда тело запроса пустое")
+    public void testCreateUser_emptyBody() {
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -42,7 +50,9 @@ public class UserControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testGetAllUsers() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть список всех пользователей")
+    public void testGetAllUsers() {
         mockMvc.perform(get("/api/v1/user"))
                 .andExpect(status().isOk());
     }

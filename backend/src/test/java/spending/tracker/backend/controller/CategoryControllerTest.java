@@ -1,6 +1,7 @@
 package spending.tracker.backend.controller;
 
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ public class CategoryControllerTest extends BaseSpringBootTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("должен вернуть все категории пользователя")
     public void testGetAllCategories() {
         mockMvc.perform(get("/api/v1/categories")
                         .header(X_USER_EMAIL_HEADER, "test@example.com"))
@@ -29,6 +31,7 @@ public class CategoryControllerTest extends BaseSpringBootTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("должен создать категорию для пользователя")
     public void testCreateCategory() {
         String userJson = "{\"email\":\"category-test@example.com\",\"googleSheetsId\":\"sheet123\"}";
         mockMvc.perform(post("/api/v1/user")
@@ -47,7 +50,9 @@ public class CategoryControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testCreateDuplicateCategory() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть 409 Conflict при создании дубликата категории")
+    public void testCreateDuplicateCategory() {
         String userJson = "{\"email\":\"category-dup@example.com\",\"googleSheetsId\":\"sheet456\"}";
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +74,9 @@ public class CategoryControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testGetCategoryById() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть категорию по id")
+    public void testGetCategoryById() {
         var user = testDataUtils.createUser("get-cat@example.com", "sheet789");
         var category = testDataUtils.createCategory(user, "Transport");
 
@@ -81,7 +88,9 @@ public class CategoryControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testUpdateCategory() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен обновить категорию пользователя")
+    public void testUpdateCategory() {
         var user = testDataUtils.createUser("update-cat@example.com", "sheet111");
         var category = testDataUtils.createCategory(user, "Food");
 
@@ -95,7 +104,9 @@ public class CategoryControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testDeleteCategory() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен удалить категорию пользователя")
+    public void testDeleteCategory() {
         var user = testDataUtils.createUser("delete-cat@example.com", "sheet222");
         var category = testDataUtils.createCategory(user, "Entertainment");
 
@@ -105,7 +116,9 @@ public class CategoryControllerTest extends BaseSpringBootTest {
     }
 
     @Test
-    public void testDeleteCategory_inUse() throws Exception {
+    @SneakyThrows
+    @DisplayName("должен вернуть 409 Conflict при удалении используемой категории")
+    public void testDeleteCategory_inUse() {
         var user = testDataUtils.createUser("delete-cat-used@example.com", "sheet333");
         var category = testDataUtils.createCategory(user, "UsedCategory");
         testDataUtils.createSpending(user, category, java.math.BigDecimal.valueOf(100), "Test spending");
