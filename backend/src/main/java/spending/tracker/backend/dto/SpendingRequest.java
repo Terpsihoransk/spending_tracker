@@ -2,6 +2,7 @@ package spending.tracker.backend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Schema(description = "Spending record DTO")
 public class SpendingRequest {
 
-    @NotBlank(message = "amount is required")
+    @NotNull(message = "amount is required")
     @Schema(description = "Spending amount", example = "150.00", requiredMode = REQUIRED)
     private BigDecimal amount;
 

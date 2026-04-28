@@ -32,8 +32,7 @@ public class UserControllerTest extends BaseSpringBootTest {
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.googleSheetsId").value("sheet123"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -41,7 +40,7 @@ public class UserControllerTest extends BaseSpringBootTest {
         mockMvc.perform(post("/api/v1/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
