@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import spending.tracker.backend.entity.Spending;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.model.SpendingModel;
+import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.repository.SpendingRepository;
 import spending.tracker.backend.repository.UserRepository;
 
@@ -30,25 +31,26 @@ public class SpendingDataService {
     public SpendingModel findById(Long id) {
         return spendingRepository.findById(id)
                 .map(spendingMapper::toModel)
-                .orElseThrow(() -> new IllegalArgumentException("Spending not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Spending", "id", id));
     }
 
     public SpendingModel save(SpendingModel spendingModel) {
         Spending spending = spendingMapper.toEntity(spendingModel);
         if (spendingModel.getUserEmail() != null) {
-            //todo //.orElseThrow(()->new IllegalArgumentException(String.format("Пользователь с email %s не найден", spendingModel.getUserEmail())));
             var user = userRepository.findByEmail(spendingModel.getUserEmail());
+            if (user == null) {
+                throw new ResourceNotFoundException("User", "email", spendingModel.getUserEmail());
+            }
             spending.setUser(user);
         }
         Spending savedSpending = spendingRepository.save(spending);
         return spendingMapper.toModel(savedSpending);
     }
 
-    public boolean deleteById(Long id) {
-        if (spendingRepository.existsById(id)) {
-            spendingRepository.deleteById(id);
-            return true;
+    public void deleteById(Long id) {
+        if (!spendingRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Spending", "id", id);
         }
-        return false;
+        spendingRepository.deleteById(id);
     }
 }

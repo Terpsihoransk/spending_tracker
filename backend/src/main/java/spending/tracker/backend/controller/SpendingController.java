@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spending.tracker.backend.model.MessageDto;
 import spending.tracker.backend.model.SpendingDto;
 import spending.tracker.backend.service.SpendingService;
 
@@ -42,7 +41,7 @@ public class SpendingController {
     @Operation(summary = "Get spending by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Spending found"),
-            @ApiResponse(responseCode = "400", description = "Spending not found")
+            @ApiResponse(responseCode = "404", description = "Spending not found")
     })
     @GetMapping("/{id}")
     public SpendingDto getSpendingById(@Parameter(description = "Spending ID", required = true, example = "1")
@@ -65,7 +64,7 @@ public class SpendingController {
     @Operation(summary = "Update existing spending")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Spending updated successfully"),
-            @ApiResponse(responseCode = "400", description = "Spending not found")
+            @ApiResponse(responseCode = "404", description = "Spending not found")
     })
     @PutMapping("/{id}")
     public SpendingDto updateSpending(@Parameter(description = "Spending ID", required = true, example = "1")
@@ -76,16 +75,12 @@ public class SpendingController {
 
     @Operation(summary = "Delete spending by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Spending deleted or not found")
+            @ApiResponse(responseCode = "200", description = "Spending deleted"),
+            @ApiResponse(responseCode = "404", description = "Spending not found")
     })
     @DeleteMapping("/{id}")
-    public MessageDto deleteSpending(@Parameter(description = "Spending ID", required = true, example = "1")
+    public void deleteSpending(@Parameter(description = "Spending ID", required = true, example = "1")
                                    @PathVariable Long id) {
-        boolean deleted = spendingService.deleteSpending(id);
-        if (deleted) {
-            return new MessageDto("Spending deleted");
-        } else {
-            return new MessageDto("Spending not found");
-        }
+        spendingService.deleteSpending(id);
     }
 }

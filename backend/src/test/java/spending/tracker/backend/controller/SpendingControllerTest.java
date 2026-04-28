@@ -5,7 +5,7 @@ import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SpendingControllerTest extends BaseSpringBootTest {
@@ -22,16 +22,15 @@ public class SpendingControllerTest extends BaseSpringBootTest {
         String json = "{\"amount\":100.00,\"category\":\"food\",\"date\":\"2024-01-15\",\"description\":\"test\"}";
 
         mockMvc.perform(post("/api/v1/spending")
-                        .header("X-User-Email", "test@example.com")
+                        .header("X-User-Email", "nonexistent@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     public void testDeleteSpending_notFound() throws Exception {
         mockMvc.perform(delete("/api/v1/spending/999"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Spending not found"));
+                .andExpect(status().isNotFound());
     }
 }

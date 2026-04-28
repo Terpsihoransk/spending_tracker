@@ -39,7 +39,7 @@ public class SpendingService {
         return spendingMapper.toDto(updatedModel);
     }
 
-    public boolean deleteSpending(Long id) {
-        return spendingDataService.deleteById(id);
+    public void deleteSpending(Long id) {
+        spendingDataService.deleteById(id);
     }
 }
