@@ -21,9 +21,11 @@ public interface SpendingMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userEmail", ignore = true)
+    @Mapping(target = "date", ignore = true)
     SpendingModel toModel(SpendingRequest request, String userEmail);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userEmail", ignore = true)
+    @Mapping(target = "date", ignore = true)
     void updateModel(SpendingRequest request, @MappingTarget SpendingModel model);
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class SpendingController {
     })
     @GetMapping
     public List<SpendingResponse> getAllSpending(@Parameter(description = "User email", required = true, example = "user@example.com")
-                                           @RequestHeader("X-User-Email") String userEmail) {
+                                                 @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.getAllSpending(userEmail);
     }
 
@@ -46,7 +47,7 @@ public class SpendingController {
     })
     @GetMapping("/{id}")
     public SpendingResponse getSpendingById(@Parameter(description = "Spending ID", required = true, example = "1")
-                                       @PathVariable Long id) {
+                                            @PathVariable Long id) {
         return spendingService.getSpendingById(id);
     }
 
@@ -55,9 +56,9 @@ public class SpendingController {
             @ApiResponse(responseCode = "200", description = "Spending created successfully")
     })
     @PostMapping
-    public SpendingResponse createSpending(@RequestBody SpendingRequest spendingRequest,
-                                           @Parameter(description = "User email", required = true, example = "user@example.com")
-                                     @RequestHeader("X-User-Email") String userEmail) {
+    public SpendingResponse createSpending(@Parameter(description = "User email", required = true, example = "user@example.com")
+                                           @Valid @RequestBody SpendingRequest spendingRequest,
+                                           @RequestHeader("X-User-Email") String userEmail) {
         return spendingService.createSpending(spendingRequest, userEmail);
     }
 
@@ -68,8 +69,8 @@ public class SpendingController {
     })
     @PutMapping("/{id}")
     public SpendingResponse updateSpending(@Parameter(description = "Spending ID", required = true, example = "1")
-                                    @PathVariable Long id,
-                                           @RequestBody SpendingRequest spendingRequest) {
+                                           @PathVariable Long id,
+                                           @Valid @RequestBody SpendingRequest spendingRequest) {
         return spendingService.updateSpending(id, spendingRequest);
     }
 
@@ -80,7 +81,7 @@ public class SpendingController {
     })
     @DeleteMapping("/{id}")
     public void deleteSpending(@Parameter(description = "Spending ID", required = true, example = "1")
-                                   @PathVariable Long id) {
+                               @PathVariable Long id) {
         spendingService.deleteSpending(id);
     }
 }

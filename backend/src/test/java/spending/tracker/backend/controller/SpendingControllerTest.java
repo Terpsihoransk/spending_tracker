@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import spending.tracker.backend.base.BaseSpringBootTest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,7 +21,7 @@ public class SpendingControllerTest extends BaseSpringBootTest {
 
     @Test
     public void testCreateSpending() throws Exception {
-        String json = "{\"amount\":100.00,\"category\":\"food\",\"date\":\"2024-01-15\",\"description\":\"test\"}";
+        String json = "{\"amount\":100.00,\"category\":\"food\",\"description\":\"test\"}";
 
         mockMvc.perform(post("/api/v1/spending")
                         .header("X-User-Email", "nonexistent@example.com")
@@ -36,7 +38,7 @@ public class SpendingControllerTest extends BaseSpringBootTest {
                         .content(userJson))
                 .andExpect(status().isOk());
 
-        String spendingJson = "{\"amount\":1500.50,\"category\":\"Food\",\"date\":\"2024-04-27\",\"description\":\"Dinner at the restaurant\"}";
+        String spendingJson = "{\"amount\":1500.50,\"category\":\"Food\",\"description\":\"Dinner at the restaurant\"}";
         mockMvc.perform(post("/api/v1/spending")
                         .header("X-User-Email", "spending-test@example.com")
                         .contentType(MediaType.APPLICATION_JSON)

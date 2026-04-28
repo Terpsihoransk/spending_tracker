@@ -7,6 +7,7 @@ import spending.tracker.backend.dto.SpendingResponse;
 import spending.tracker.backend.exception.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -36,6 +37,7 @@ public class SpendingService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
 
         var model = spendingMapper.toModel(spendingRequest, userEmail);
+        model.setDate(LocalDate.now());
         var savedModel = spendingDataService.save(model, userModel.getId());
         return spendingMapper.toDto(savedModel);
     }
@@ -43,6 +45,7 @@ public class SpendingService {
     public SpendingResponse updateSpending(Long id, SpendingRequest spendingRequest) {
         var existingModel = spendingDataService.findById(id);
         spendingMapper.updateModel(spendingRequest, existingModel);
+        existingModel.setDate(LocalDate.now());
         var updatedModel = spendingDataService.save(existingModel);
         return spendingMapper.toDto(updatedModel);
     }
