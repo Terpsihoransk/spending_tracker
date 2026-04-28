@@ -32,6 +32,6 @@ public class SpendingControllerTest extends BaseSpringBootTest {
     public void testDeleteSpending_notFound() throws Exception {
         mockMvc.perform(delete("/api/v1/spending/999"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("запись не найдена"));
+                .andExpect(jsonPath("$.message").value("Spending not found"));
     }
 }
