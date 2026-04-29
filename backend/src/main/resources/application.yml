@@ -14,6 +14,7 @@ spring:
 
 server:
   port: ${SERVER_PORT:8081}
+  address: ${SERVER_ADDRESS:0.0.0.0}
 
 logging:
   level:
