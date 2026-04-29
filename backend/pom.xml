@@ -23,6 +23,8 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <dotenv.version>5.2.2</dotenv.version>
         <google-api.version>2.9.0</google-api.version>
+        <google-sheets.version>v4-rev20220927-2.0.0</google-sheets.version>
+        <google-http-client.version>2.0.3</google-http-client.version>
         <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
     </properties>
 
@@ -47,6 +49,16 @@
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>${google-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sheets</artifactId>
+            <version>${google-sheets.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+            <version>${google-http-client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

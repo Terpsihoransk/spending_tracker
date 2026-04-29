@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
 import spending.tracker.backend.service.SpendingService;
+import spending.tracker.backend.service.SyncService;
 import spending.tracker.backend.validation.ValidEmailHeader;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/spending")
@@ -30,6 +32,7 @@ import java.util.List;
 public class SpendingController {
 
     private final SpendingService spendingService;
+    private final SyncService syncService;
 
     @Operation(summary = "Get all spendings for user")
     @ApiResponses(value = {
@@ -87,5 +90,24 @@ public class SpendingController {
                                @PathVariable Long id,
                                @ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
         spendingService.deleteSpending(id, userEmail);
+    }
+
+    @Operation(summary = "Force synchronization with Google Sheets")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Synchronization started")
+    })
+    @PostMapping("/sync")
+    public Map<String, String> forceSync(@ValidEmailHeader @RequestHeader("X-User-Email") String userEmail) {
+        syncService.processQueue();
+        return Map.of("status", "sync_started", "message", "Synchronization queue processing started");
+    }
+
+    @Operation(summary = "Get synchronization status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sync status retrieved")
+    })
+    @GetMapping("/sync/status")
+    public SyncService.SyncStatusSummary getSyncStatus() {
+        return syncService.getSyncStatus();
     }
 }
