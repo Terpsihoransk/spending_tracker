@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,15 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String googleSheetsId;
+
+    @Column
+    private String googleAccessToken;
+
+    @Column
+    private String googleRefreshToken;
+
+    @Column
+    private Instant tokenExpiry;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();

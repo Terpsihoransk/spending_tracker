@@ -1,9 +1,12 @@
 package spending.tracker.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
+import spending.tracker.backend.entity.SyncQueue.EntityType;
+import spending.tracker.backend.entity.SyncQueue.Operation;
 import spending.tracker.backend.exception.type.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.service.data.SpendingDataService;
@@ -14,11 +17,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SpendingService {
 
     private final SpendingDataService spendingDataService;
     private final SpendingMapper spendingMapper;
     private final UserDataService userDataService;
+    private final SyncService syncService;
 
     public List<SpendingResponse> getAllSpending(String userEmail) {
         return userDataService.findByEmail(userEmail)
@@ -42,6 +47,13 @@ public class SpendingService {
         var model = spendingMapper.toModel(spendingRequest, userEmail);
         model.setDate(LocalDate.now());
         var savedModel = spendingDataService.save(model, userModel.getId());
+        
+        try {
+            syncService.queueSync(EntityType.SPENDING, savedModel.getId(), Operation.CREATE);
+        } catch (Exception e) {
+            log.error("Failed to queue sync for spending {}: {}", savedModel.getId(), e.getMessage());
+        }
+        
         return spendingMapper.toDto(savedModel);
     }
 
@@ -51,6 +63,13 @@ public class SpendingService {
         existingModel.setUserEmail(userEmail);
         existingModel.setDate(LocalDate.now());
         var updatedModel = spendingDataService.updateSpending(existingModel);
+        
+        try {
+            syncService.queueSync(EntityType.SPENDING, updatedModel.getId(), Operation.UPDATE);
+        } catch (Exception e) {
+            log.error("Failed to queue sync for spending {}: {}", updatedModel.getId(), e.getMessage());
+        }
+        
         return spendingMapper.toDto(updatedModel);
     }
 
@@ -59,6 +78,13 @@ public class SpendingService {
         if (!spending.getUserEmail().equals(userEmail)) {
             throw new ResourceNotFoundException("Spending", "id", id.toString());
         }
+        
+        try {
+            syncService.queueSync(EntityType.SPENDING, id, Operation.DELETE);
+        } catch (Exception e) {
+            log.error("Failed to queue sync for deleted spending {}: {}", id, e.getMessage());
+        }
+        
         spendingDataService.deleteById(id);
     }
 }
