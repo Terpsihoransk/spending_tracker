@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    driverClassName: ${DB_DRIVER}
-    username: ${DB_USERNAME}
+    url: ${DB_URL:jdbc:h2:mem:spending_tracker}
+    driverClassName: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
