@@ -11,6 +11,8 @@ spring:
   h2:
     console:
       enabled: false
+  liquibase:
+    enabled: false
 
 server:
   port: 0

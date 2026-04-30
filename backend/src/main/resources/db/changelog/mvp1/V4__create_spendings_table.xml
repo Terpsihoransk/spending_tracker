@@ -1,0 +1,92 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="spendings"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="spendings">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="spendings_pkey"/>
+            </column>
+            <column name="amount" type="decimal(19,2)"/>
+            <column name="category_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subcategory_id" type="bigint"/>
+            <column name="date" type="date"/>
+            <column name="description" type="text"/>
+            <column name="user_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="spendings"
+                baseColumnNames="category_id"
+                referencedTableName="categories"
+                referencedColumnNames="id"
+                constraintName="fk_spendings_category"
+                onDelete="RESTRICT"/>
+
+        <addForeignKeyConstraint
+                baseTableName="spendings"
+                baseColumnNames="subcategory_id"
+                referencedTableName="subcategories"
+                referencedColumnNames="id"
+                constraintName="fk_spendings_subcategory"
+                onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint
+                baseTableName="spendings"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_spendings_user"
+                onDelete="SET NULL"/>
+
+        <addDefaultValue
+                columnName="id"
+                tableName="spendings"
+                defaultValueSequenceNext="spendings_id_seq"/>
+
+        <createSequence 
+            sequenceName="spendings_id_seq" 
+            startValue="1" 
+            incrementBy="1"/>
+
+        <createIndex
+                indexName="idx_spendings_category_id"
+                tableName="spendings"
+                unique="false">
+            <column name="category_id"/>
+        </createIndex>
+
+        <createIndex
+                indexName="idx_spendings_subcategory_id"
+                tableName="spendings"
+                unique="false">
+            <column name="subcategory_id"/>
+        </createIndex>
+
+        <createIndex
+                indexName="idx_spendings_user_id"
+                tableName="spendings"
+                unique="false">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex
+                indexName="idx_spendings_date"
+                tableName="spendings"
+                unique="false">
+            <column name="date"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

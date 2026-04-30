@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sub_categories",
+@Table(name = "subcategories",
         uniqueConstraints = @UniqueConstraint(columnNames = {"category_id", "name"}))
 @Getter
 @Setter
