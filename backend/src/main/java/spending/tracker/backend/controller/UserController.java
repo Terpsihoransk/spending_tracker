@@ -25,9 +25,9 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Create new user")
+    @Operation(summary = "Create new user or get existing user by email")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User created successfully")
+            @ApiResponse(responseCode = "200", description = "User created or retrieved successfully")
     })
     @PostMapping
     public UserResponse createUser(@Valid @RequestBody UserRequest userRequest) {

@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: spending-tracker
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_URL=jdbc:h2:mem:spending_tracker
+      - DB_DRIVER=org.h2.Driver
+      - DB_USERNAME=sa
+      - DB_PASSWORD=
+      - SERVER_PORT=8081
+      - SERVER_ADDRESS=0.0.0.0
+    working_dir: /app
+    command: java -jar /app.jar
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "spending-tracker"
+
+  graylog:
+    image: graylog/graylog:5.2
+    container_name: graylog
+    restart: always
+    ports:
+      - "9000:9000"
+      - "12201:12201/udp"
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://opensearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
+    depends_on:
+      - mongo
+      - opensearch
+
+  mongo:
+    image: mongo:6
+    container_name: graylog-mongo
+    restart: always
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: graylog-opensearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - plugins.security.disabled=true

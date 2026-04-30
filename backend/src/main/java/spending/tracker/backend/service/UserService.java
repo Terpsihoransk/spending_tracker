@@ -22,9 +22,13 @@ public class UserService {
     }
 
     public UserResponse saveUser(UserRequest userRequest) {
-        UserModel userModel = userMapper.toModel(userRequest);
-        UserModel savedModel = userDataService.save(userModel);
-        return userMapper.toDto(savedModel);
+        return userDataService.findByEmail(userRequest.getEmail())
+                .map(userMapper::toDto)
+                .orElseGet(() -> {
+                    UserModel userModel = userMapper.toModel(userRequest);
+                    UserModel savedModel = userDataService.save(userModel);
+                    return userMapper.toDto(savedModel);
+                });
     }
 
     public List<UserResponse> getAllUsers() {
