@@ -1,0 +1,43 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="users">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column name="email" type="text">
+                <constraints nullable="false" unique="true" uniqueConstraintName="users_email_key"/>
+            </column>
+            <column name="google_sheets_id" type="text"/>
+        </createTable>
+
+        <addDefaultValue 
+            columnName="id" 
+            tableName="users"
+            defaultValueSequenceNext="users_id_seq"/>
+
+        <createSequence 
+            sequenceName="users_id_seq" 
+            startValue="1" 
+            incrementBy="1"/>
+
+        <createIndex 
+            indexName="idx_users_email" 
+            tableName="users"
+            unique="false">
+            <column name="email"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

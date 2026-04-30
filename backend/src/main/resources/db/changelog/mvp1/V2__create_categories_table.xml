@@ -1,0 +1,58 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="categories"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="categories">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="categories_pkey"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint 
+            baseTableName="categories" 
+            baseColumnNames="user_id"
+            referencedTableName="users" 
+            referencedColumnNames="id"
+            constraintName="fk_categories_user"
+            onDelete="CASCADE"/>
+
+        <addUniqueConstraint 
+            tableName="categories" 
+            columnNames="user_id, name"
+            constraintName="uk_categories_user_name"/>
+
+        <addDefaultValue 
+            columnName="id" 
+            tableName="categories"
+            defaultValueSequenceNext="categories_id_seq"/>
+
+        <createSequence 
+            sequenceName="categories_id_seq" 
+            startValue="1" 
+            incrementBy="1"/>
+
+        <createIndex 
+            indexName="idx_categories_user_id" 
+            tableName="categories"
+            unique="false">
+            <column name="user_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
