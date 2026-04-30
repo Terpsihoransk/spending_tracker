@@ -1,0 +1,76 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="subcategories"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="subcategories">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="subcategories_pkey"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint 
+            baseTableName="subcategories" 
+            baseColumnNames="category_id"
+            referencedTableName="categories" 
+            referencedColumnNames="id"
+            constraintName="fk_subcategories_category"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="subcategories" 
+            baseColumnNames="user_id"
+            referencedTableName="users" 
+            referencedColumnNames="id"
+            constraintName="fk_subcategories_user"
+            onDelete="CASCADE"/>
+
+        <addUniqueConstraint 
+            tableName="subcategories" 
+            columnNames="category_id, name"
+            constraintName="uk_subcategories_category_name"/>
+
+        <addDefaultValue 
+            columnName="id" 
+            tableName="subcategories"
+            defaultValueSequenceNext="subcategories_id_seq"/>
+
+        <createSequence 
+            sequenceName="subcategories_id_seq" 
+            startValue="1" 
+            incrementBy="1"/>
+
+        <createIndex 
+            indexName="idx_subcategories_category_id" 
+            tableName="subcategories"
+            unique="false">
+            <column name="category_id"/>
+        </createIndex>
+
+        <createIndex 
+            indexName="idx_subcategories_user_id" 
+            tableName="subcategories"
+            unique="false">
+            <column name="user_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

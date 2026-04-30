@@ -13,6 +13,8 @@ public interface UserMapper {
     UserResponse toDto(UserModel userModel);
 
     @Mapping(target = "id", ignore = true)
+    //todo если пусто, то кастом, а будем регать
+    @Mapping(target = "googleSheetsId", expression = "java(userDto.getGoogleSheetsId() != null && !userDto.getGoogleSheetsId().trim().isEmpty() ? userDto.getGoogleSheetsId() : \"sheet456\")")
     UserModel toModel(UserRequest userDto);
 
     UserModel toModel(User entity);
