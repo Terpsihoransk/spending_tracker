@@ -15,7 +15,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
 
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT}
   address: ${SERVER_ADDRESS:0.0.0.0}
 
 logging:
