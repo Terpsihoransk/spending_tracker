@@ -17,9 +17,18 @@ spring:
 server:
   port: ${SERVER_PORT}
   address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-message: always
 
-logging:
-  level:
-    org.springframework.security: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
