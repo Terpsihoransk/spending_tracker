@@ -11,18 +11,19 @@
         </encoder>
     </appender>
     
-    <!-- UDP Appender для Graylog -->
-    <appender name="GELF_UDP" class="ch.qos.logback.classic.net.DatagramAppender">
-        <remoteHost>${GRAYLOG_HOST:-37.194.84.64}</remoteHost>
-        <port>${GRAYLOG_PORT:-12201}</port>
+    <!-- TCP Appender для Graylog через LogstashEncoder -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${GRAYLOG_HOST:-37.194.84.64}:${GRAYLOG_PORT:-12201}</destination>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"application":"${appName}","host":"${HOSTNAME:-localhost}"}</customFields>
+            <customFields>{"app_name":"${appName}"}</customFields>
         </encoder>
+        <reconnectionDelay>1 second</reconnectionDelay>
+        <writeBufferSize>8192</writeBufferSize>
     </appender>
     
-    <!-- Async wrapper for UDP to avoid blocking -->
-    <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="GELF_UDP"/>
+    <!-- Async wrapper for LOGSTASH to avoid blocking -->
+    <appender name="ASYNC_LOGSTASH" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="LOGSTASH"/>
         <queueSize>512</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
@@ -31,7 +32,7 @@
     <springProfile name="default">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="ASYNC_GELF"/>
+            <appender-ref ref="ASYNC_LOGSTASH"/>
         </root>
         <logger name="spending.tracker" level="DEBUG"/>
     </springProfile>
