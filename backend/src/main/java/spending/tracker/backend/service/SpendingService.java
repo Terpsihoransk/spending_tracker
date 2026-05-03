@@ -49,7 +49,9 @@ public class SpendingService {
         var existingModel = spendingDataService.findById(id);
         spendingMapper.updateModel(spendingRequest, existingModel, userEmail);
         existingModel.setUserEmail(userEmail);
-        existingModel.setDate(LocalDate.now());
+        if (spendingRequest.getDate() != null) {
+            existingModel.setDate(spendingRequest.getDate());
+        }
         var updatedModel = spendingDataService.updateSpending(existingModel);
         return spendingMapper.toDto(updatedModel);
     }

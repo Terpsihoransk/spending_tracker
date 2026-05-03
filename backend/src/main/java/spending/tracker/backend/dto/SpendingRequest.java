@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -26,4 +27,7 @@ public class SpendingRequest {
 
     @Schema(description = "Spending description", example = "Lunch at restaurant", requiredMode = NOT_REQUIRED)
     private String description;
+
+    @Schema(description = "Spending date (optional, defaults to current date if not provided)", example = "2024-01-15", requiredMode = NOT_REQUIRED)
+    private LocalDate date;
 }

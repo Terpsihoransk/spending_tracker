@@ -60,7 +60,7 @@ public class SpendingControllerTest extends BaseSpringBootTest {
         var spending = testDataUtils.createSpending(user, category, new BigDecimal("100.00"), "Initial");
         Long spendingId = spending.getId();
 
-        String updateJson = "{\"amount\":200.00,\"categoryId\":" + newCategory.getId() + ",\"description\":\"Updated\"}";
+        String updateJson = "{\"amount\":200.00,\"categoryId\":" + newCategory.getId() + ",\"date\":\"2024-01-15\",\"description\":\"Updated\"}";
         mockMvc.perform(put("/api/v1/spending/" + spendingId)
                         .header(X_USER_EMAIL_HEADER, "update-test@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,6 +69,7 @@ public class SpendingControllerTest extends BaseSpringBootTest {
                 .andExpect(jsonPath("$.amount").value(200.00))
                 .andExpect(jsonPath("$.categoryName").value("Transport"))
                 .andExpect(jsonPath("$.description").value("Updated"))
+                .andExpect(jsonPath("$.date").value("2024-01-15"))
                 .andExpect(jsonPath("$.userEmail").value("update-test@example.com"));
     }
 
