@@ -26,6 +26,7 @@
         <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
         <liquibase.version>5.0.2</liquibase.version>
         <logstash-logback.version>9.0</logstash-logback.version>
+        <logback-gelf.version>6.1.2</logback-gelf.version>
     </properties>
 
     <dependencies>
@@ -101,6 +102,11 @@
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>${logstash-logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.siegmar</groupId>
+            <artifactId>logback-gelf</artifactId>
+            <version>${logback-gelf.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
