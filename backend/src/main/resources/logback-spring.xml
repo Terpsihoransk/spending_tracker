@@ -12,19 +12,14 @@
         </encoder>
     </appender>
 
-    <!-- UDP Appender для Graylog -->
-    <appender name="GRAYLOG_UDP" class="net.logstash.logback.appender.LogstashUdpSocketAppender">
-        <destination>${GRAYLOG_HOST:}:${GRAYLOG_PORT}</destination>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"app_name":"${appName}","environment":"production","timezone":"Asia/Novosibirsk"}</customFields>
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <message>message</message>
-                <logger>logger</logger>
-                <level>level</level>
-                <thread>thread</thread>
-                <mdc>mdc</mdc>
-            </fieldNames>
+    <!-- UDP Appender для Graylog (GELF формат) -->
+    <appender name="GRAYLOG_UDP" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>${GRAYLOG_HOST}</graylogHost>
+        <graylogPort>${GRAYLOG_PORT}</graylogPort>
+        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+            <staticField>app_name:${appName}</staticField>
+            <staticField>environment:production</staticField>
+            <staticField>timezone:Asia/Novosibirsk</staticField>
         </encoder>
     </appender>
 
