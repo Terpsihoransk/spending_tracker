@@ -5,38 +5,44 @@ services:
     container_name: spending-tracker
     restart: always
     ports:
-      - "8081:8081"
+      - "0.0.0.0:5222:5222"      # WebSocket
+      - "127.0.0.1:8081:8081"    # REST API
+    env_file:
+      - ./.env
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - SERVER_PORT=8081
       - SERVER_ADDRESS=0.0.0.0
+      - GRAYLOG_HOST=graylog
+      - GRAYLOG_PORT=12201
+      - LOGSTASH_ENABLED=true
     working_dir: /app
     command: java -jar /app.jar
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://37.194.84.64:12201"
-        tag: "spending-tracker"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # ← Доступ к БД на хосте
     networks:
       - spending-tracker-network
+    depends_on:
+      - prometheus  # ← Prometheus должен быть готов к приёму метрик
 
   graylog:
     image: graylog/graylog:5.2
     container_name: graylog
     restart: always
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
       - "12201:12201/udp"
     environment:
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://localhost:9000/
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
       - GRAYLOG_ELASTICSEARCH_HOSTS=http://opensearch:9200
       - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
+      - TZ=Asia/Novosibirsk
     depends_on:
       - mongo
       - opensearch
@@ -59,22 +65,23 @@ services:
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
       - DISABLE_INSTALL_DEMO_CONFIG=true
       - DISABLE_SECURITY_PLUGIN=true
-    ports:
-      - "9200:9200"
     networks:
-      - spending-tracker-network
+      - spending-tracker-network  # ← Убрали публичный порт 9200
 
   prometheus:
     image: prom/prometheus:v2.47.0
     container_name: prometheus
     restart: always
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"  # ← Только localhost
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # ← Доступ к метрикам хоста
     networks:
       - spending-tracker-network
 
@@ -83,11 +90,12 @@ services:
     container_name: grafana
     restart: always
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"  # ← Только localhost
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://127.0.0.1:3000/
     volumes:
       - grafana-data:/var/lib/grafana
     depends_on:
@@ -101,3 +109,4 @@ networks:
 
 volumes:
   grafana-data:
+  prometheus-data:

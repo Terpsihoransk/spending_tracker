@@ -77,3 +77,5 @@ fabric.properties
 /plans/
 /backend/target/
 amplicode.xml
+/node_exporter-1.6.1.linux-amd64/
+/postgres_exporter-0.13.2.linux-amd64/
