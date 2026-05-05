@@ -14,7 +14,7 @@
 
     <!-- UDP Appender для Graylog -->
     <appender name="GRAYLOG_UDP" class="net.logstash.logback.appender.LogstashUdpSocketAppender">
-        <destination>${GRAYLOG_HOST:-localhost}:${GRAYLOG_PORT:-12201}</destination>
+        <destination>${GRAYLOG_HOST:}:${GRAYLOG_PORT}</destination>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"app_name":"${appName}","environment":"production","timezone":"Asia/Novosibirsk"}</customFields>
             <fieldNames>

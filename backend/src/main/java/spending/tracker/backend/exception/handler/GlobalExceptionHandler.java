@@ -15,6 +15,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import spending.tracker.backend.dto.ErrorResponse;
 import spending.tracker.backend.exception.type.CategoryInUseException;
 import spending.tracker.backend.exception.type.DuplicateCategoryException;
@@ -182,6 +183,13 @@ public class GlobalExceptionHandler {
         
         return buildResponse(HttpStatus.CONFLICT, "DATA_INTEGRITY_VIOLATION", 
             "Data integrity constraint violation", request);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("No resource found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
