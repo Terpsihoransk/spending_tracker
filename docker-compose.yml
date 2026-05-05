@@ -34,15 +34,19 @@ services:
     container_name: graylog
     restart: always
     ports:
-      - "127.0.0.1:9000:9000"
-      - "12201:12201/udp"
+      - "127.0.0.1:9000:9000"              # Web UI - только localhost
+      - "0.0.0.0:5223:9000"                # Web UI - внешний доступ на порт 5223
+      - "12201:12201/udp"                   # GELF UDP - для логов из приложения
     environment:
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://37.194.84.64:5223/   # Внешний URL
       - GRAYLOG_ELASTICSEARCH_HOSTS=http://opensearch:9200
       - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
       - TZ=Asia/Novosibirsk
+      # Дополнительные настройки для внешнего доступа
+      - GRAYLOG_HTTP_BIND_ADDRESS=0.0.0.0:9000
+      - GRAYLOG_HTTP_ENABLE_CORS=true
     depends_on:
       - mongo
       - opensearch
