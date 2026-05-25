@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=public
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=public
     driverClassName: org.postgresql.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -13,6 +13,9 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+  jackson:
+    time-zone: Asia/Novosibirsk
+    date-format: dd.MM.yyyy HH:mm:ss
 
 server:
   port: ${SERVER_PORT}
@@ -32,3 +35,12 @@ management:
     metrics:
       export:
         enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  timezone: Asia/Novosibirsk

@@ -3,7 +3,18 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
+  # Приложение в контейнере
   - job_name: 'spending-tracker'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['app:8081']
+
+  # PostgreSQL на хосте (требуется postgres_exporter)
+  - job_name: 'postgres-host'
+    static_configs:
+      - targets: ['host.docker.internal:9187']
+
+  # Система хоста (требуется node_exporter)
+  - job_name: 'node-host'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
