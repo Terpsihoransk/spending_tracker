@@ -1,0 +1,53 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="menu_ingredients"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_ingredients">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="menu_ingredients_pkey"/>
+            </column>
+            <column name="name" type="text">
+                <constraints nullable="false" unique="true" uniqueConstraintName="menu_ingredients_name_key"/>
+            </column>
+            <column name="base_measure_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_ingredients" 
+            baseColumnNames="base_measure_id"
+            referencedTableName="menu_measures" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_ingredients_base_measure"
+            onDelete="RESTRICT"/>
+
+        <addDefaultValue 
+            columnName="id" 
+            tableName="menu_ingredients"
+            defaultValueSequenceNext="menu_ingredients_id_seq"/>
+
+        <createSequence 
+            sequenceName="menu_ingredients_id_seq" 
+            startValue="1" 
+            incrementBy="1"/>
+
+        <createIndex 
+            indexName="idx_menu_ingredients_base_measure" 
+            tableName="menu_ingredients"
+            unique="false">
+            <column name="base_measure_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

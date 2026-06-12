@@ -1,0 +1,49 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="menu_ingredient_measures"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_ingredient_measures">
+            <column name="ingredient_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="measure_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_unit_coefficient" type="decimal(10,4)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey 
+            tableName="menu_ingredient_measures" 
+            columnNames="ingredient_id, measure_id"
+            constraintName="menu_ingredient_measures_pkey"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_ingredient_measures" 
+            baseColumnNames="ingredient_id"
+            referencedTableName="menu_ingredients" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_ingredient_measures_ingredient"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_ingredient_measures" 
+            baseColumnNames="measure_id"
+            referencedTableName="menu_measures" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_ingredient_measures_measure"
+            onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

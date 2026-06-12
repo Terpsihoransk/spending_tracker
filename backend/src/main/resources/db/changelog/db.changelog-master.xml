@@ -10,4 +10,12 @@
     <include file="db/changelog/mvp1/V3__create_subcategories_table.xml"/>
     <include file="db/changelog/mvp1/V4__create_spendings_table.xml"/>
 
+    <include file="db/changelog/mvp2/V5__create_menu_measures_table.xml"/>
+    <include file="db/changelog/mvp2/V6__create_menu_ingredients_table.xml"/>
+    <include file="db/changelog/mvp2/V7__create_menu_ingredient_measures_table.xml"/>
+    <include file="db/changelog/mvp2/V8__create_menu_recipes_table.xml"/>
+    <include file="db/changelog/mvp2/V9__create_menu_recipe_users_table.xml"/>
+    <include file="db/changelog/mvp2/V10__create_menu_recipe_ingredients_table.xml"/>
+    <include file="db/changelog/mvp2/V11__create_menu_shopping_list_table.xml"/>
+
 </databaseChangeLog>

@@ -5,39 +5,40 @@
     <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="spending-tracker-backend"/>
     <springProperty scope="context" name="appTimezone" source="app.timezone" defaultValue="UTC"/>
 
-    <!-- Консольный appender с локальным временем -->
+    <!-- Консольный appender (общий для всех профилей) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Novosibirsk} [%level] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- UDP Appender для Graylog (GELF формат) -->
-    <appender name="GRAYLOG_UDP" class="de.siegmar.logbackgelf.GelfUdpAppender">
-        <graylogHost>${GRAYLOG_HOST}</graylogHost>
-        <graylogPort>${GRAYLOG_PORT}</graylogPort>
-        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
-            <staticField>app_name:${appName}</staticField>
-            <staticField>environment:production</staticField>
-            <staticField>timezone:Asia/Novosibirsk</staticField>
-        </encoder>
-    </appender>
-
-    <!-- Async wrapper -->
-    <appender name="ASYNC_GRAYLOG" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="GRAYLOG_UDP"/>
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <neverBlock>true</neverBlock>
-    </appender>
-
-    <!-- HTTP логгер - только в Graylog -->
-    <logger name="HTTP" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_GRAYLOG"/>
-    </logger>
-
-    <!-- Root логгер -->
+    <!-- ===== Профиль default (production) ===== -->
     <springProfile name="default">
+        <!-- UDP Appender для Graylog (GELF формат) -->
+        <appender name="GRAYLOG_UDP" class="de.siegmar.logbackgelf.GelfUdpAppender">
+            <graylogHost>${GRAYLOG_HOST}</graylogHost>
+            <graylogPort>${GRAYLOG_PORT}</graylogPort>
+            <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+                <staticField>app_name:${appName}</staticField>
+                <staticField>environment:production</staticField>
+                <staticField>timezone:Asia/Novosibirsk</staticField>
+            </encoder>
+        </appender>
+
+        <!-- Async wrapper -->
+        <appender name="ASYNC_GRAYLOG" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GRAYLOG_UDP"/>
+            <queueSize>512</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+        </appender>
+
+        <!-- HTTP логгер - только в Graylog -->
+        <logger name="HTTP" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_GRAYLOG"/>
+        </logger>
+
+        <!-- Root логгер -->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_GRAYLOG"/>
@@ -57,6 +58,7 @@
         <logger name="org.jboss" level="WARN"/>
     </springProfile>
 
+    <!-- ===== Профиль test ===== -->
     <springProfile name="test">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>

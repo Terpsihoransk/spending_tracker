@@ -1,0 +1,60 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="menu_recipe_ingredients"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_recipe_ingredients">
+            <column name="recipe_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ingredient_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="measure_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="decimal(10,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey 
+            tableName="menu_recipe_ingredients" 
+            columnNames="recipe_id, ingredient_id"
+            constraintName="menu_recipe_ingredients_pkey"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_recipe_ingredients" 
+            baseColumnNames="recipe_id"
+            referencedTableName="menu_recipes" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_recipe_ingredients_recipe"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_recipe_ingredients" 
+            baseColumnNames="ingredient_id"
+            referencedTableName="menu_ingredients" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_recipe_ingredients_ingredient"
+            onDelete="RESTRICT"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_recipe_ingredients" 
+            baseColumnNames="measure_id"
+            referencedTableName="menu_measures" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_recipe_ingredients_measure"
+            onDelete="RESTRICT"/>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,46 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="developer">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="menu_shopping_list"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_shopping_list">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipe_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey 
+            tableName="menu_shopping_list" 
+            columnNames="user_id, recipe_id"
+            constraintName="menu_shopping_list_pkey"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_shopping_list" 
+            baseColumnNames="user_id"
+            referencedTableName="users" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_shopping_list_user"
+            onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint 
+            baseTableName="menu_shopping_list" 
+            baseColumnNames="recipe_id"
+            referencedTableName="menu_recipes" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_shopping_list_recipe"
+            onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

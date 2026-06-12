@@ -20,9 +20,12 @@ import spending.tracker.backend.dto.ErrorResponse;
 import spending.tracker.backend.exception.type.CategoryInUseException;
 import spending.tracker.backend.exception.type.DuplicateCategoryException;
 import spending.tracker.backend.exception.type.DuplicateEntityException;
+import spending.tracker.backend.exception.type.DuplicateMenuIngredientException;
+import spending.tracker.backend.exception.type.DuplicateMenuRecipeException;
 import spending.tracker.backend.exception.type.DuplicateSubCategoryException;
 import spending.tracker.backend.exception.type.ForeignKeyException;
 import spending.tracker.backend.exception.type.InvalidEmailException;
+import spending.tracker.backend.exception.type.MenuIngredientInUseException;
 import spending.tracker.backend.exception.type.ResourceNotFoundException;
 import spending.tracker.backend.exception.type.SubCategoryInUseException;
 
@@ -136,6 +139,27 @@ public class GlobalExceptionHandler {
             DuplicateCategoryException ex, HttpServletRequest request) {
         log.warn("Duplicate category: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_CATEGORY", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateMenuIngredientException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateMenuIngredient(
+            DuplicateMenuIngredientException ex, HttpServletRequest request) {
+        log.warn("Duplicate menu ingredient: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_MENU_INGREDIENT", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MenuIngredientInUseException.class)
+    public ResponseEntity<ErrorResponse> handleMenuIngredientInUse(
+            MenuIngredientInUseException ex, HttpServletRequest request) {
+        log.warn("Menu ingredient in use: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "MENU_INGREDIENT_IN_USE", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateMenuRecipeException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateMenuRecipe(
+            DuplicateMenuRecipeException ex, HttpServletRequest request) {
+        log.warn("Duplicate menu recipe: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "DUPLICATE_MENU_RECIPE", ex.getMessage(), request);
     }
 
     @ExceptionHandler(CategoryInUseException.class)
