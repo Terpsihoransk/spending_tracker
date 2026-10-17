@@ -11,11 +11,11 @@ services:
       - ./.env
     environment:
       - DB_HOST=host.docker.internal
-      - DB_PORT=5432
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      - SERVER_PORT=8081
+      - SERVER_PORT=${SERVER_PORT}
       - SERVER_ADDRESS=0.0.0.0
       - GRAYLOG_HOST=graylog
       - GRAYLOG_PORT=12201
@@ -38,9 +38,9 @@ services:
       - "0.0.0.0:5223:9000"                # Web UI - внешний доступ на порт 5223
       - "12201:12201/udp"                   # GELF UDP - для логов из приложения
     environment:
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://37.194.84.64:5223/   # Внешний URL
+      - GRAYLOG_PASSWORD_SECRET=${GRAYLOG_PASSWORD_SECRET}
+      - GRAYLOG_ROOT_PASSWORD_SHA2=${GRAYLOG_ROOT_PASSWORD_SHA2}
+      - GRAYLOG_HTTP_EXTERNAL_URI=${GRAYLOG_HTTP_EXTERNAL_URI}
       - GRAYLOG_ELASTICSEARCH_HOSTS=http://opensearch:9200
       - GRAYLOG_MONGODB_URI=mongodb://mongo:27017/graylog
       # Дополнительные настройки для внешнего доступа
