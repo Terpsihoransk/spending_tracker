@@ -38,7 +38,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryResponse getCategoryById(Long id, String userEmail) {
         var user = userDataService.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var model = categoryDataService.findByIdAndUserId(id, user.getId());
         model.setUserEmail(userEmail);
@@ -47,7 +47,7 @@ public class CategoryService {
 
     public CategoryResponse createCategory(CategoryRequest categoryRequest, String userEmail) {
         var userEntity = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (categoryRepository.existsByUser_IdAndName(userEntity.getId(), categoryRequest.getName())) {
             throw new DuplicateCategoryException(categoryRequest.getName(), userEmail);
@@ -63,7 +63,7 @@ public class CategoryService {
 
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest, String userEmail) {
         var user = userDataService.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var existingModel = categoryDataService.findByIdAndUserId(id, user.getId());
 
@@ -80,7 +80,7 @@ public class CategoryService {
 
     public void deleteCategory(Long id, String userEmail) {
         var user = userDataService.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var category = categoryDataService.findByIdAndUserId(id, user.getId());
         if (!category.getUserEmail().equals(userEmail)) {
