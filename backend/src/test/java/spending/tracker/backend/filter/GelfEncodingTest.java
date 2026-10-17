@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * а структурированные поля (correlation_id, http.*) и статические поля попадают
  * в сообщение как дополнительные GELF-поля. Конфигурация валидна (нет ERROR).
  */
-class GelfEncodingTest {
+public class GelfEncodingTest {
 
     private static final String CONFIG = "logback-gelf-verify.xml";
     private static final Path OUTPUT = Path.of("target/gelf-verify.json");

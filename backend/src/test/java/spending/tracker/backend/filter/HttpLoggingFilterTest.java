@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class HttpLoggingFilterTest {
+public class HttpLoggingFilterTest {
 
     private final HttpLoggingFilter filter = new HttpLoggingFilter();
 
@@ -61,7 +61,7 @@ class HttpLoggingFilterTest {
         runFilter(request, response, "{\"id\":1,\"userEmail\":\"arsenjeva.ea@gmail.com\"}", 201);
 
         assertEquals(1, appender.list.size());
-        ILoggingEvent event = appender.list.get(0);
+        ILoggingEvent event = appender.list.getFirst();
         Map<String, String> mdc = event.getMDCPropertyMap();
 
         assertEquals("POST", mdc.get("http.method"));
@@ -99,7 +99,7 @@ class HttpLoggingFilterTest {
 
         runFilter(request, response, "", 200);
 
-        ILoggingEvent event = appender.list.get(0);
+        ILoggingEvent event = appender.list.getFirst();
         Map<String, String> mdc = event.getMDCPropertyMap();
         assertFalse(mdc.containsKey("authorization"));
         assertFalse(mdc.containsValue("Bearer super-secret-token"));
@@ -117,7 +117,7 @@ class HttpLoggingFilterTest {
 
         runFilter(request, response, "", 200);
 
-        String requestBody = appender.list.get(0).getMDCPropertyMap().get("http.request_body");
+        String requestBody = appender.list.getFirst().getMDCPropertyMap().get("http.request_body");
         assertNotNull(requestBody);
         assertFalse(requestBody.contains("secret123"), requestBody);
         assertFalse(requestBody.contains("abc.def.ghi"), requestBody);
@@ -136,7 +136,7 @@ class HttpLoggingFilterTest {
 
         runFilter(request, response, "{\"ok\":true}", 200);
 
-        String loggedRequest = appender.list.get(0).getMDCPropertyMap().get("http.request_body");
+        String loggedRequest = appender.list.getFirst().getMDCPropertyMap().get("http.request_body");
         assertNotNull(loggedRequest);
         assertTrue(loggedRequest.endsWith("... [truncated]"));
         assertEquals(500 + "... [truncated]".length(), loggedRequest.length());
@@ -153,7 +153,7 @@ class HttpLoggingFilterTest {
 
         runFilter(request, response, "", 200);
 
-        String requestBody = appender.list.get(0).getMDCPropertyMap().get("http.request_body");
+        String requestBody = appender.list.getFirst().getMDCPropertyMap().get("http.request_body");
         assertEquals("<not logged>", requestBody);
     }
 
@@ -168,7 +168,7 @@ class HttpLoggingFilterTest {
 
         String header = response.getHeader("X-Correlation-Id");
         assertNotNull(header);
-        assertEquals(header, appender.list.get(0).getMDCPropertyMap().get("correlation_id"));
+        assertEquals(header, appender.list.getFirst().getMDCPropertyMap().get("correlation_id"));
         assertNull(MDC.get("correlation_id"));
     }
 
