@@ -18,7 +18,7 @@ services:
       - SERVER_PORT=${SERVER_PORT}
       - SERVER_ADDRESS=0.0.0.0
       - GRAYLOG_HOST=graylog
-      - GRAYLOG_PORT=12201
+      - GRAYLOG_PORT=${GRAYLOG_PORT}
       - LOGSTASH_ENABLED=true
     working_dir: /app
     command: java -jar /app.jar
