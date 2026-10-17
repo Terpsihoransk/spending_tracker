@@ -25,7 +25,7 @@ public class SpendingDataService {
     private final SpendingMapper spendingMapper;
 
     public List<SpendingModel> findAllByUserId(Long userId) {
-        return spendingRepository.findByUser_Id(userId).stream()
+        return spendingRepository.findByUser_IdWithUserAndCategory(userId).stream()
                 .map(spendingMapper::toModel)
                 .toList();
     }

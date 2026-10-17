@@ -45,6 +45,16 @@
         <logger name="spending.tracker.backend.filter" level="OFF"/>
         <logger name="spending.tracker.backend.config.EmailAuthenticationFilter" level="WARN"/>
         <logger name="org.springframework.web" level="WARN"/>
+        <!-- Hibernate/DB verbose logging - отключено -->
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+        <logger name="org.hibernate.engine.jdbc" level="WARN"/>
+        <logger name="org.hibernate.tool.hbm2ddl" level="WARN"/>
+        <logger name="org.hibernate.resource.jdbc" level="WARN"/>
+        <logger name="org.hibernate.internal" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
+        <logger name="org.jboss" level="WARN"/>
     </springProfile>
 
     <springProfile name="test">

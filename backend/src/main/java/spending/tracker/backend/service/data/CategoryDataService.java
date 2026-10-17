@@ -24,13 +24,13 @@ public class CategoryDataService {
     private final CategoryMapper categoryMapper;
 
     public List<CategoryModel> findAllByUserId(Long userId) {
-        return categoryRepository.findByUser_Id(userId).stream()
+        return categoryRepository.findByUser_IdWithUser(userId).stream()
                 .map(categoryMapper::toModel)
                 .toList();
     }
 
     public CategoryModel findByIdAndUserId(Long id, Long userId) {
-        return categoryRepository.findByIdAndUser_Id(id, userId)
+        return categoryRepository.findByIdAndUser_IdWithUser(id, userId)
                 .map(categoryMapper::toModel)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
