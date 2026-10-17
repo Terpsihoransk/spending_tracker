@@ -5,18 +5,30 @@
     <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="spending-tracker-backend"/>
     <springProperty scope="context" name="appTimezone" source="app.timezone" defaultValue="UTC"/>
 
-    <!-- Консольный appender с локальным временем -->
+    <!-- Консольный appender с локальным временем (формат не меняется) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, Asia/Novosibirsk} [%level] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- UDP Appender для Graylog (GELF формат) -->
+    <!--
+        UDP Appender для Graylog (GELF).
+        Graylog GELF-инпут принимает только валидный GELF (version/host/short_message),
+        поэтому используется GelfEncoder. Структурированные поля (correlation_id, http.*)
+        попадают в GELF как дополнительные поля из MDC (includeMdcData).
+    -->
     <appender name="GRAYLOG_UDP" class="de.siegmar.logbackgelf.GelfUdpAppender">
         <graylogHost>${GRAYLOG_HOST}</graylogHost>
         <graylogPort>${GRAYLOG_PORT}</graylogPort>
         <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+            <!-- Дополнительные поля из MDC: correlation_id, http.* -->
+            <includeMdcData>true</includeMdcData>
+            <!-- Человекочитаемое имя уровня в отдельном поле -->
+            <includeLevelName>true</includeLevelName>
+            <loggerNameKey>logger_name</loggerNameKey>
+            <threadNameKey>thread_name</threadNameKey>
+            <!-- Статические поля -->
             <staticField>app_name:${appName}</staticField>
             <staticField>environment:production</staticField>
             <staticField>timezone:Asia/Novosibirsk</staticField>
@@ -31,13 +43,14 @@
         <neverBlock>true</neverBlock>
     </appender>
 
-    <!-- HTTP логгер - только в Graylog -->
-    <logger name="HTTP" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_GRAYLOG"/>
-    </logger>
-
-    <!-- Root логгер -->
     <springProfile name="default">
+        <!-- HTTP логгер - в консоль и в Graylog -->
+        <logger name="HTTP" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_GRAYLOG"/>
+        </logger>
+
+        <!-- Root логгер -->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_GRAYLOG"/>
@@ -57,6 +70,10 @@
         <logger name="org.jboss" level="WARN"/>
     </springProfile>
 
+    <!--
+        Тестовый профиль: только консоль, Graylog не используется
+        (GRAYLOG_HOST/GRAYLOG_PORT в тестовом окружении не заданы).
+    -->
     <springProfile name="test">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>

@@ -49,7 +49,7 @@ public class CategoryDataService {
         var category = categoryMapper.toEntity(categoryModel);
         if (category.getUser() == null && categoryModel.getUserEmail() != null) {
             var user = userRepository.findByEmail(categoryModel.getUserEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "email", categoryModel.getUserEmail()));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             category.setUser(user);
         }
         var savedCategory = categoryRepository.save(category);

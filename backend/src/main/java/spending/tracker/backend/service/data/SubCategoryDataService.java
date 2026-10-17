@@ -2,6 +2,7 @@ package spending.tracker.backend.service.data;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spending.tracker.backend.entity.SubCategory;
 import spending.tracker.backend.mapper.SubCategoryMapper;
 import spending.tracker.backend.model.SubCategoryModel;
@@ -20,18 +21,21 @@ public class SubCategoryDataService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     public SubCategoryModel findById(Long id) {
         return subCategoryRepository.findById(id)
                 .map(subCategoryMapper::toModel)
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public SubCategoryModel findByIdAndUserId(Long id, Long userId) {
         return subCategoryRepository.findByIdAndUser_Id(id, userId)
                 .map(subCategoryMapper::toModel)
                 .orElse(null);
     }
 
+    @Transactional
     public SubCategoryModel save(SubCategoryModel model) {
         SubCategory entity = subCategoryMapper.toEntity(model);
         
@@ -51,6 +55,7 @@ public class SubCategoryDataService {
         return subCategoryMapper.toModel(saved);
     }
 
+    @Transactional
     public void deleteById(Long id) {
         subCategoryRepository.deleteById(id);
     }

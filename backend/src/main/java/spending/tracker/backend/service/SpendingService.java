@@ -44,7 +44,7 @@ public class SpendingService {
 
     public SpendingResponse createSpending(SpendingRequest spendingRequest, String userEmail) {
         var userModel = userDataService.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         var model = spendingMapper.toModel(spendingRequest, userEmail);
         model.setDate(LocalDate.now());

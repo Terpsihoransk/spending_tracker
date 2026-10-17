@@ -10,20 +10,46 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+import spending.tracker.backend.logging.LogSanitizer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Locale;
+import java.util.UUID;
 
+/**
+ * Фильтр логирования HTTP: собирает данные запроса/ответа, раскладывает их по
+ * структурированным полям (MDC) и логирует тела запроса/ответа на уровне INFO
+ * с маскированием sensitive-данных. Тела также включаются в сообщение, чтобы
+ * быть видимыми в консоли, а не только в Graylog.
+ */
 @Component
 public class HttpLoggingFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger("HTTP");
-    private static final String CORRELATION_ID = "correlation_id";
-    private static final int CACHE_LIMIT = 10000;
+
+    static final String CORRELATION_ID = "correlation_id";
+
+    // Структурированные поля HTTP-лога (становятся отдельными полями JSON/GELF)
+    static final String HTTP_METHOD = "http.method";
+    static final String HTTP_URI = "http.uri";
+    static final String HTTP_QUERY = "http.query";
+    static final String HTTP_STATUS = "http.status";
+    static final String HTTP_DURATION_MS = "http.duration_ms";
+    static final String HTTP_REQUEST_BODY = "http.request_body";
+    static final String HTTP_RESPONSE_BODY = "http.response_body";
+    static final String HTTP_USER_AGENT = "http.user_agent";
+    static final String HTTP_CONTENT_TYPE = "http.content_type";
+    static final String HTTP_X_REQUESTED_WITH = "http.x_requested_with";
+
+    static final int CACHE_LIMIT = 10000;
+    static final int MAX_BODY_LENGTH = 500;
+    static final String TRUNCATED_SUFFIX = "... [truncated]";
+    static final String BODY_NOT_LOGGED = "<not logged>";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -44,11 +70,9 @@ public class HttpLoggingFilter implements Filter {
 
         try {
             chain.doFilter(wrappedRequest, wrappedResponse);
-
-            // Логируем только после обработки
-            logRequestResponse(wrappedRequest, wrappedResponse, startTime);
-
         } finally {
+            // Логируем после обработки, до сброса MDC и отдачи тела клиенту
+            logRequestResponse(wrappedRequest, wrappedResponse, startTime);
             wrappedResponse.copyBodyToResponse();
             MDC.clear();
         }
@@ -59,63 +83,73 @@ public class HttpLoggingFilter implements Filter {
                                     long startTime) {
         long duration = System.currentTimeMillis() - startTime;
 
-        // Получаем тело запроса
-        byte[] requestBody = request.getContentAsByteArray();
-        String reqBody = new String(requestBody, StandardCharsets.UTF_8);
+        MDC.put(HTTP_METHOD, nullToEmpty(request.getMethod()));
+        MDC.put(HTTP_URI, nullToEmpty(request.getRequestURI()));
+        MDC.put(HTTP_QUERY, nullToEmpty(request.getQueryString()));
+        MDC.put(HTTP_STATUS, String.valueOf(response.getStatus()));
+        MDC.put(HTTP_DURATION_MS, String.valueOf(duration));
+        MDC.put(HTTP_USER_AGENT, nullToEmpty(request.getHeader("user-agent")));
+        MDC.put(HTTP_CONTENT_TYPE, nullToEmpty(request.getContentType()));
+        MDC.put(HTTP_X_REQUESTED_WITH, nullToEmpty(request.getHeader("x-requested-with")));
 
-        // Получаем тело ответа
-        byte[] responseBody = response.getContentAsByteArray();
-        String respBody = new String(responseBody, StandardCharsets.UTF_8);
+        // Тела запроса/ответа логируются на INFO с маскированием sensitive-данных.
+        String requestBody = resolveRequestBody(request);
+        String responseBody = resolveResponseBody(response);
+        MDC.put(HTTP_REQUEST_BODY, requestBody);
+        MDC.put(HTTP_RESPONSE_BODY, responseBody);
 
-        // Ограничиваем размер для логирования
-        reqBody = truncateBody(reqBody);
-        respBody = truncateBody(respBody);
+        // Тела дублируются в сообщении, чтобы их было видно и в консоли (не только в Graylog).
+        logger.info("{} {} -> {} | request_body={} | response_body={}",
+                request.getMethod(), request.getRequestURI(), response.getStatus(), requestBody, responseBody);
+    }
 
-        // Структурированное логирование в одну строку для Graylog
-        logger.info(String.format(
-                "http_request|method=%s|uri=%s|query=%s|status=%d|duration=%d|headers=%s|request_body=%s|response_body=%s",
-                request.getMethod(),
-                request.getRequestURI(),
-                request.getQueryString() != null ? request.getQueryString() : "",
-                response.getStatus(),
-                duration,
-                getImportantHeaders(request),
-                reqBody,
-                respBody
-        ));
+    private String resolveRequestBody(ContentCachingRequestWrapper request) {
+        if (isBodyLoggingUnsupported(request.getContentType())) {
+            return BODY_NOT_LOGGED;
+        }
+        return truncateBody(LogSanitizer.mask(new String(request.getContentAsByteArray(), StandardCharsets.UTF_8)));
+    }
+
+    private String resolveResponseBody(ContentCachingResponseWrapper response) {
+        if (isBodyLoggingUnsupported(response.getContentType())) {
+            return BODY_NOT_LOGGED;
+        }
+        return truncateBody(LogSanitizer.mask(new String(response.getContentAsByteArray(), StandardCharsets.UTF_8)));
+    }
+
+    /**
+     * Тела multipart и бинарных типов не логируются: мусор в логах и риск OOM
+     * на больших телах (R12).
+     */
+    private boolean isBodyLoggingUnsupported(String contentType) {
+        if (contentType == null) {
+            return false;
+        }
+        String lower = contentType.toLowerCase(Locale.ROOT);
+        if (lower.startsWith(MediaType.MULTIPART_FORM_DATA_VALUE)) {
+            return true;
+        }
+        return lower.startsWith("image/")
+                || lower.startsWith("audio/")
+                || lower.startsWith("video/")
+                || lower.contains("application/octet-stream")
+                || lower.contains("application/pdf")
+                || lower.contains("application/zip")
+                || lower.contains("application/gzip")
+                || lower.contains("application/x-protobuf");
     }
 
     private String truncateBody(String body) {
-        if (body == null || body.isEmpty()) return "";
-        if (body.length() > 500) {
-            return body.substring(0, 500) + "... [truncated]";
+        if (body == null || body.isEmpty()) {
+            return "";
+        }
+        if (body.length() > MAX_BODY_LENGTH) {
+            return body.substring(0, MAX_BODY_LENGTH) + TRUNCATED_SUFFIX;
         }
         return body;
     }
 
-    private String getImportantHeaders(HttpServletRequest request) {
-        // Логируем только важные заголовки
-        List<String> importantHeaders = Arrays.asList(
-                "user-agent", "content-type", "authorization", "x-requested-with"
-        );
-
-        StringBuilder headers = new StringBuilder();
-        for (String headerName : importantHeaders) {
-            String headerValue = request.getHeader(headerName);
-            if (headerValue != null && !headerValue.isEmpty()) {
-                if (headers.length() > 0) headers.append("; ");
-                headers.append(headerName).append("=");
-
-                // Скрываем sensitive данные
-                if (headerName.equals("authorization")) {
-                    headers.append("***");
-                } else if (headerName.equals("cookie")) {
-                    headers.append(headerValue.length() > 50 ? "***" : headerValue);
-                } else {
-                    headers.append(headerValue.length() > 100 ? headerValue.substring(0, 100) : headerValue);
-                }
-            }
-        }
-        return headers.toString();
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }
