@@ -60,8 +60,3 @@ graph TD
 | Обработка ошибок | [exception_handling_plan.md](exception_handling_plan.md) | Обработка исключений |
 | Email валидация | [email_validation_plan.md](email_validation_plan.md) | Валидация email |
 | Google Sheets | [google_sheets_integration_plan.md](../../.plans/google_sheets_integration_plan.md) | Интеграция с Google Sheets |
-
-## Следующие шаги
-
-1. **Android модуль** — создать базовую структуру с Gradle и Compose
-2. Продолжить интеграцию с Google Sheets в backend
