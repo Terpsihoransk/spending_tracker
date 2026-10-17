@@ -5,8 +5,7 @@ services:
     container_name: spending-tracker
     restart: always
     ports:
-      - "0.0.0.0:5222:5222"      # WebSocket
-      - "127.0.0.1:8081:8081"    # REST API
+      - "5222:5222"
     env_file:
       - ./.env
     environment:
@@ -103,6 +102,15 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - spending-tracker-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
     networks:
       - spending-tracker-network
 
