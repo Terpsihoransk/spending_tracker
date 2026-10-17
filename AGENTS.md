@@ -18,43 +18,53 @@
 
 ```mermaid
 graph TD
-    Android[Android App<br/>Kotlin + Room] -->|REST API| Backend[Backend<br/>Java 25 + Spring Boot 4.0.4]
+    Android[Android App<br/>Kotlin + Jetpack Compose] -->|REST API| Backend[Backend<br/>Java 25 + Spring Boot 4.0.4]
     Backend -->|Google Sheets API| GoogleSheets[Google Sheets]
+    Backend -->|GELF/UDP| Graylog[Graylog]
+    Backend -->|/actuator/prometheus| Prometheus[Prometheus] --> Grafana[Grafana]
 ```
 
 ### Backend (`backend/`)
 
-Java 25 + Spring Boot 4.0.4, REST API, Spring Security, OAuth 2.0, JPA/H2, Maven
+Java 25 + Spring Boot 4.0.4, REST API, Spring Security, OAuth 2.0, JPA, PostgreSQL + Liquibase, Maven.
 
 **Структура пакетов** (`spending.tracker.backend`):
-- `config/` — конфигурация (Security, Web, Email Authentication Filter)
-- `controller/` — REST контроллеры (User, Category, SubCategory, Spending)
+- `config/` — конфигурация (Security, Web, EmailAuthenticationFilter)
+- `controller/` — REST контроллеры (User, Category, SubCategory, Spending, Root)
 - `dto/` — Request/Response DTOs
 - `entity/` — JPA сущности (User, Category, SubCategory, Spending)
 - `exception/` — обработка исключений
   - `handler/GlobalExceptionHandler.java` — единая точка обработки
   - `type/` — типы исключений
+- `filter/` — `HttpLoggingFilter` (HTTP-логирование, correlation_id)
 - `mapper/` — MapStruct мапперы (User, Category, SubCategory, Spending)
 - `model/` — внутренние модели
 - `repository/` — Spring Data JPA репозитории
 - `service/` — бизнес-логика
   - `data/` — Data Services (доступ к данным)
-- `validation/` — валидация email через header
+- `validation/` — валидация email через header (`ValidEmailHeader`, `ValidEmailHeaderArgumentResolver`)
 
-**Аутентификация**: email передаётся в заголовке `X-User-Email`, валидируется через `ValidEmailHeader`
+**Аутентификация**: email передаётся в заголовке `X-User-Email`, валидируется через `@ValidEmailHeader`
 
 **API Endpoints** (Swagger: `http://localhost:8081/swagger-ui/index.html`):
 
 | Модуль | Base URL | Описание |
 |--------|----------|----------|
-| User | `/api/v1/users` | Управление пользователями |
+| User | `/api/v1/user` | Управление пользователями |
 | Category | `/api/v1/categories` | Категории расходов |
 | SubCategory | `/api/v1/subcategories` | Подкатегории |
 | Spending | `/api/v1/spending` | Расходы |
 
-### Frontend (Android) — в разработке
+### Frontend (Android) — отдельный репозиторий
 
-Kotlin + Room (SQLite) + Retrofit + MPAndroidChart
+Kotlin + Jetpack Compose + Room (SQLite) + Ktor + Koin
+
+### Инфраструктура
+
+- `docker-compose.yml` — сервисы `app`, `graylog`, `mongo`, `opensearch`, `prometheus`, `grafana`.
+- `Dockerfile` — сборка образа приложения (jar).
+- `prometheus.yml` — конфигурация сбора метрик (app, postgres/node exporters).
+- `.env` — переменные окружения (БД, порты, секреты Graylog).
 
 ---
 
@@ -110,14 +120,19 @@ erDiagram
 
 ### Backend
 
-| Компонент | Версия |
-|-----------|-------|
+| Компонент | Версия / примечание |
+|-----------|---------------------|
 | Java | 25 |
 | Spring Boot | 4.0.4 |
 | Lombok | 1.18.44 |
 | MapStruct | 1.6.3 |
 | SpringDoc OpenAPI | 3.0.3 |
-| H2 Database | — |
+| PostgreSQL | — (продакшн-БД) |
+| Liquibase | 5.0.2 |
+| H2 Database | — (только тесты) |
+| Actuator + Micrometer Prometheus | — |
+| logstash-logback-encoder | 9.0 |
+| logback-gelf | 6.1.2 |
 | google-api-client | 2.9.0 |
 | java-dotenv | 5.2.2 |
 
@@ -128,10 +143,14 @@ erDiagram
 mvn clean install
 
 # Запуск backend
-mvn spring-boot:run
+cd backend && mvn spring-boot:run
 
 # Запуск тестов
-mvn test
+cd backend && mvn test
+
+# Запуск в Docker
+mvn clean package
+docker-compose up -d --build
 ```
 
 ---
@@ -152,6 +171,21 @@ Controller -> Service -> DataService -> Repository
 3. **DataService** — доступ к данным (find/save/update/delete)
 4. **Mapper** — преобразование между слоями
 
+### База данных и миграции
+
+- Продакшн-БД — PostgreSQL; параметры подключения берутся из переменных окружения (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`).
+- Миграции — Liquibase, changelog: `backend/src/main/resources/db/changelog/db.changelog-master.xml` (изменения в `db/changelog/mvp1/`).
+- В тестах Liquibase отключён, используется H2 in-memory (`application-test.yml`, `ddl-auto: create-drop`).
+
+### Логирование и мониторинг
+
+- Конфигурация Logback: `backend/src/main/resources/logback-spring.xml`.
+- HTTP-логирование — `filter/HttpLoggingFilter`: генерация `correlation_id`, заголовок `X-Correlation-Id`, тела запросов/ответов только на DEBUG (обрезка до 500 символов).
+- Логи отправляются в Graylog через GELF/UDP (`logback-gelf`) в структурированном JSON (`logstash-logback-encoder`); sensitive-данные (`authorization`, `password`, `token`, JWT) маскируются энкодером.
+- Профили Logback: `default` — console + Graylog; `test` — только console (без Graylog).
+- Метрики — Actuator (`/actuator/prometheus`), сбор в Prometheus, визуализация в Grafana.
+- Подробности: [`documentation/history/graylog.md`](documentation/history/graylog.md).
+
 ### Обработка ошибок
 
 Все исключения обрабатываются в `GlobalExceptionHandler`. Типы исключений в `exception/type/`:
@@ -165,25 +199,36 @@ Controller -> Service -> DataService -> Repository
 
 ### Тесты
 
-- Базовый класс: `BaseSpringBootTest`
-- Тесты контроллеров: `*ControllerTest.java`
-- Тестовые утилиты: `TestDataUtils.java`
+Обязательные правила оформления тестов вынесены в [`.agents/rules/testing_rules.md`](.agents/rules/testing_rules.md). Кратко:
+
+- Модификатор доступа класса указывается явно: `public class LogbackMaskingTest { ... }`, а не `class LogbackMaskingTest { ... }`.
+- Первый элемент коллекции берётся через `.getFirst()`, а не `.get(0)` (последний — `.getLast()`).
+- Интеграционные тесты наследуются от `BaseSpringBootTest` (профиль `test`, H2 in-memory).
+- Тестовые данные создаются через `TestDataUtils`.
+- `@DisplayName` — на русском языке.
 
 ---
 
 ## Планы разработки
 
-Документация в `.plans/`:
-- [`global_plan.md`](.plans/global_plan.md) — общий план
-- [`category_refactoring_plan.md`](.plans/category_refactoring_plan.md) — рефакторинг категорий
-- [`subcategory_plan.md`](.plans/subcategory_plan.md) — подкатегории
-- [`dto_module_refactoring_plan.md`](.plans/dto_module_refactoring_plan.md) — рефакторинг DTO
-- [`exception_handling_plan.md`](.plans/exception_handling_plan.md) — обработка ошибок
-- [`email_validation_plan.md`](.plans/email_validation_plan.md) — валидация email
+| План | Файл | Описание |
+|------|------|----------|
+| Глобальный | [`documentation/history/global_plan.md`](documentation/history/global_plan.md) | Общий план разработки |
+| Android | [`documentation/history/android_kotlin_plan.md`](documentation/history/android_kotlin_plan.md) | Создание Android-приложения |
+| Backend MVP | [`documentation/plan/mvp_plan_back.md`](documentation/plan/mvp_plan_back.md) | Планы релизов backend |
+| Google Sheets | [`documentation/plan/google_sheets_integration_plan.md`](documentation/plan/google_sheets_integration_plan.md) | Интеграция с Google Sheets |
+| Модуль меню | [`.plans/menu_module_plan.md`](.plans/menu_module_plan.md) | План модуля меню |
+| Текущие задачи | [`.plans/task.md`](.plans/task.md) | Текущие задачи |
 
 ---
 
 ## Полезные ссылки
 
 - Swagger UI: `http://localhost:8081/swagger-ui/index.html`
-- H2 Console: `http://localhost:8081/h2-console` (если настроено)
+- Actuator health: `http://localhost:8081/actuator/health`
+- Prometheus metrics: `http://localhost:8081/actuator/prometheus`
+- Graylog UI: `http://localhost:9000`
+- Prometheus UI: `http://127.0.0.1:9090`
+- Grafana UI: `http://127.0.0.1:3000`
+- API спецификация: [`documentation/api_specification.md`](documentation/api_specification.md)
+- Правила тестов: [`.agents/rules/testing_rules.md`](.agents/rules/testing_rules.md)
