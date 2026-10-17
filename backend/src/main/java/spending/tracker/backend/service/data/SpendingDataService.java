@@ -3,6 +3,7 @@ package spending.tracker.backend.service.data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spending.tracker.backend.exception.type.ResourceNotFoundException;
 import spending.tracker.backend.mapper.SpendingMapper;
 import spending.tracker.backend.model.SpendingModel;
@@ -24,12 +25,14 @@ public class SpendingDataService {
     private final SubCategoryRepository subCategoryRepository;
     private final SpendingMapper spendingMapper;
 
+    @Transactional(readOnly = true)
     public List<SpendingModel> findAllByUserId(Long userId) {
-        return spendingRepository.findByUser_IdWithUserAndCategory(userId).stream()
+        return spendingRepository.findByUser_IdWithAssociations(userId).stream()
                 .map(spendingMapper::toModel)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public SpendingModel findById(Long id) {
         return spendingRepository.findById(id)
                 .map(spendingMapper::toModel)

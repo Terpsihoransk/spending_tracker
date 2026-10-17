@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @DisplayName("ValidEmailHeaderArgumentResolver Tests")
-class ValidEmailHeaderArgumentResolverTest {
+public class ValidEmailHeaderArgumentResolverTest {
 
     private ValidEmailHeaderArgumentResolver resolver;
     private NativeWebRequest webRequest;

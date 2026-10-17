@@ -2,6 +2,7 @@ package spending.tracker.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spending.tracker.backend.dto.SpendingRequest;
 import spending.tracker.backend.dto.SpendingResponse;
 import spending.tracker.backend.exception.type.ResourceNotFoundException;
@@ -20,7 +21,12 @@ public class SpendingService {
     private final SpendingMapper spendingMapper;
     private final UserDataService userDataService;
 
+    @Transactional(readOnly = true)
     public List<SpendingResponse> getAllSpending(String userEmail) {
+        // Маппинг entity -> model выполняется ровно один раз внутри
+        // SpendingDataService#findAllByUserId, в его @Transactional(readOnly = true).
+        // Здесь остаётся только преобразование готовых моделей в response DTO,
+        // повторного чтения lazy-ассоциаций через маппер не происходит.
         return userDataService.findByEmail(userEmail)
                 .map(user -> spendingDataService.findAllByUserId(user.getId()))
                 .orElse(List.of())
@@ -29,6 +35,7 @@ public class SpendingService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public SpendingResponse getSpendingById(Long id, String userEmail) {
         var model = spendingDataService.findById(id);
         model.setUserEmail(userEmail);

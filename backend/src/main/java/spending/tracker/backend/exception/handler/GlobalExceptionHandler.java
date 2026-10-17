@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.LazyInitializationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -192,10 +193,31 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(LazyInitializationException.class)
+    public ResponseEntity<ErrorResponse> handleLazyInitialization(
+            LazyInitializationException ex, HttpServletRequest request) {
+        log.error("LazyInitializationException: method={} uri={} userEmail={} message={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getHeader("X-User-Email"),
+                ex.getMessage(),
+                ex);
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "LAZY_INITIALIZATION_ERROR",
+                "Unable to load related entity data",
+                request
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {
-        log.error("Unexpected error: ", ex);
+        log.error("Unexpected error: method={} uri={} userEmail={} ",
+                request.getMethod(),
+                request.getRequestURI(),
+                request.getHeader("X-User-Email"),
+                ex);
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",
