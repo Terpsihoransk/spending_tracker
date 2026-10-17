@@ -55,20 +55,16 @@ public class SubCategoryService {
     }
 
     public List<SubCategoryResponse> getAllByCategory(Long categoryId, String userEmail) {
-        var user = userRepository.findByEmail(userEmail)
+        userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        CategoryModel category = categoryDataService.findByIdAndUserId(categoryId, user.getId());
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found");
+        // Категория должна существовать -> иначе 404, а не пустой список.
+        // Владелец намеренно не проверяется: выборка подкатегорий ниже ограничена текущим пользователем.
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new ResourceNotFoundException("Category", "id", categoryId);
         }
 
-        List<SubCategoryModel> subCategories = subCategoryRepository.findAllByCategory_IdAndUser_Email(categoryId, userEmail)
-                .stream()
-                .map(subCategoryMapper::toModel)
-                .toList();
-
-        return subCategories.stream()
+        return subCategoryDataService.findAllByCategoryIdAndUserEmail(categoryId, userEmail).stream()
                 .map(subCategoryMapper::toDto)
                 .collect(Collectors.toList());
     }

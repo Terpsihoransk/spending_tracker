@@ -11,6 +11,8 @@ import spending.tracker.backend.repository.SpendingRepository;
 import spending.tracker.backend.repository.SubCategoryRepository;
 import spending.tracker.backend.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SubCategoryDataService {
@@ -33,6 +35,13 @@ public class SubCategoryDataService {
         return subCategoryRepository.findByIdAndUser_Id(id, userId)
                 .map(subCategoryMapper::toModel)
                 .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SubCategoryModel> findAllByCategoryIdAndUserEmail(Long categoryId, String userEmail) {
+        return subCategoryRepository.findAllByCategory_IdAndUser_Email(categoryId, userEmail).stream()
+                .map(subCategoryMapper::toModel)
+                .toList();
     }
 
     @Transactional

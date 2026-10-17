@@ -127,4 +127,46 @@ public class SubCategoryControllerTest extends BaseSpringBootTest {
                         .header(X_USER_EMAIL_HEADER, "subcat-user2@example.com"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("должен вернуть 200 и пустой список для существующей категории другого пользователя")
+    public void testGetSubCategoriesForExistingCategoryOfAnotherUser() {
+        var user1 = testDataUtils.createUser("subcat-owner@example.com", "sheet666");
+        testDataUtils.createUser("subcat-viewer@example.com", "sheet777");
+        var category = testDataUtils.createCategory(user1, "Food");
+
+        mockMvc.perform(get("/api/v1/subcategories")
+                        .param("categoryId", String.valueOf(category.getId()))
+                        .header(X_USER_EMAIL_HEADER, "subcat-viewer@example.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("должен вернуть подкатегории с заполненным categoryName")
+    public void testGetSubCategoriesMappingFields() {
+        var user = testDataUtils.createUser("subcat-fields@example.com", "sheet888");
+        var category = testDataUtils.createCategory(user, "Food");
+        testDataUtils.createSubCategory(user, category, "Groceries");
+
+        mockMvc.perform(get("/api/v1/subcategories")
+                        .param("categoryId", String.valueOf(category.getId()))
+                        .header(X_USER_EMAIL_HEADER, "subcat-fields@example.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].categoryName").value("Food"));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("должен вернуть 404 для несуществующей категории")
+    public void testGetSubCategoriesForMissingCategory() {
+        testDataUtils.createUser("subcat-missing@example.com", "sheet999");
+
+        mockMvc.perform(get("/api/v1/subcategories")
+                        .param("categoryId", "999999")
+                        .header(X_USER_EMAIL_HEADER, "subcat-missing@example.com"))
+                .andExpect(status().isNotFound());
+    }
 }
