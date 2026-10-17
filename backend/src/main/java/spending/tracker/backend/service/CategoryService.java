@@ -2,6 +2,7 @@ package spending.tracker.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import spending.tracker.backend.dto.CategoryRequest;
 import spending.tracker.backend.dto.CategoryResponse;
 import spending.tracker.backend.exception.type.DuplicateCategoryException;
@@ -24,6 +25,7 @@ public class CategoryService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getAllCategories(String userEmail) {
         return userDataService.findByEmail(userEmail)
                 .map(user -> categoryDataService.findAllByUserId(user.getId()))
@@ -33,6 +35,7 @@ public class CategoryService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public CategoryResponse getCategoryById(Long id, String userEmail) {
         var user = userDataService.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", userEmail));
