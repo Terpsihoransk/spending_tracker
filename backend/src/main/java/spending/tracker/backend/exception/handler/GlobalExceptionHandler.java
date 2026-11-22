@@ -211,7 +211,7 @@ public class GlobalExceptionHandler {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "LAZY_INITIALIZATION_ERROR",
-                "Unable to load related entity data",
+                "Не удалось загрузить данные расхода. Пожалуйста, обновите экран и попробуйте ещё раз.",
                 request
         );
     }
@@ -227,7 +227,7 @@ public class GlobalExceptionHandler {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",
-                "An unexpected error occurred",
+                "Не удалось выполнить запрос. Пожалуйста, попробуйте ещё раз.",
                 request
         );
     }

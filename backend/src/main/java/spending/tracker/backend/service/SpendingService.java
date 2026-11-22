@@ -54,12 +54,14 @@ public class SpendingService {
 
     public SpendingResponse updateSpending(Long id, SpendingRequest spendingRequest, String userEmail) {
         var existingModel = spendingDataService.findById(id);
+        if (!userEmail.equals(existingModel.getUserEmail())) {
+            throw new ResourceNotFoundException("Spending", "id", id);
+        }
         spendingMapper.updateModel(spendingRequest, existingModel, userEmail);
-        existingModel.setUserEmail(userEmail);
         if (spendingRequest.getDate() != null) {
             existingModel.setDate(spendingRequest.getDate());
         }
-        var updatedModel = spendingDataService.updateSpending(existingModel);
+        var updatedModel = spendingDataService.updateSpending(id, existingModel);
         return spendingMapper.toDto(updatedModel);
     }
 
