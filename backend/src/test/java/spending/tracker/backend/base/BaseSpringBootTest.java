@@ -17,7 +17,6 @@ import org.springframework.web.context.WebApplicationContext;
 @TestPropertySource(properties = {
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration"
 })
-@Transactional
 public class BaseSpringBootTest {
 
     protected static final String X_USER_EMAIL_HEADER = "X-User-Email";
