@@ -39,6 +39,7 @@ public class SpendingDataService {
                 .orElseThrow(() -> new ResourceNotFoundException("Spending", "id", id));
     }
 
+    @Transactional
     public SpendingModel save(SpendingModel spendingModel, Long userId) {
         var spending = spendingMapper.toEntity(spendingModel);
         var user = userRepository.findById(userId)
@@ -56,30 +57,39 @@ public class SpendingDataService {
         }
 
         var savedSpending = spendingRepository.save(spending);
+        // Маппинг выполняется внутри транзакции: open-in-view=false,
+        // поэтому lazy-ассоциации нельзя читать после её завершения.
         return spendingMapper.toModel(savedSpending);
     }
 
-    public SpendingModel updateSpending(SpendingModel spendingModel) {
-        var spending = spendingMapper.toEntity(spendingModel);
-        if (spending.getUser() == null && spendingModel.getUserEmail() != null) {
-            var user = userRepository.findByEmail(spendingModel.getUserEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-            spending.setUser(user);
-        }
-        if (spendingModel.getCategoryId() != null) {
-            var category = categoryRepository.findById(spendingModel.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
-            spending.setCategory(category);
-        }
+    @Transactional
+    public SpendingModel updateSpending(Long id, SpendingModel spendingModel) {
+        // Загружаем управляемую сущность и меняем её поля вместо merge detached-копии:
+        // после merge Hibernate возвращает сущность с lazy-прокси, которые нельзя
+        // инициализировать вне транзакции (LazyInitializationException).
+        var spending = spendingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Spending", "id", id));
+
+        spending.setAmount(spendingModel.getAmount());
+        spending.setDate(spendingModel.getDate());
+        spending.setDescription(spendingModel.getDescription());
+
+        var category = categoryRepository.findById(spendingModel.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", spendingModel.getCategoryId()));
+        spending.setCategory(category);
+
         if (spendingModel.getSubcategoryId() != null) {
             var subCategory = subCategoryRepository.findById(spendingModel.getSubcategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("SubCategory", "id", spendingModel.getSubcategoryId()));
             spending.setSubCategory(subCategory);
+        } else {
+            spending.setSubCategory(null);
         }
-        var savedSpending = spendingRepository.save(spending);
-        return spendingMapper.toModel(savedSpending);
+
+        return spendingMapper.toModel(spendingRepository.save(spending));
     }
 
+    @Transactional
     public void deleteById(Long id) {
         if (!spendingRepository.existsById(id)) {
             throw new ResourceNotFoundException("Spending", "id", id);

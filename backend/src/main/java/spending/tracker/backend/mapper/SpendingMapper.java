@@ -32,6 +32,7 @@ public interface SpendingMapper {
     SpendingModel toModel(SpendingRequest request, String userEmail);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "date", ignore = true)
     @Mapping(target = "userEmail", source = "userEmail")
     @Mapping(target = "categoryName", ignore = true)
     @Mapping(target = "subcategoryName", ignore = true)

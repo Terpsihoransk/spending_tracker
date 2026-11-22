@@ -45,6 +45,7 @@ public class CategoryDataService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
+    @Transactional
     public CategoryModel save(CategoryModel categoryModel) {
         var category = categoryMapper.toEntity(categoryModel);
         if (category.getUser() == null && categoryModel.getUserEmail() != null) {
@@ -56,6 +57,7 @@ public class CategoryDataService {
         return categoryMapper.toModel(savedCategory);
     }
 
+    @Transactional
     public void deleteById(Long id) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));

@@ -69,4 +69,26 @@ public class SpendingDataServiceTest {
         assertThat(model.getSubcategoryName()).isEqualTo("Fuel");
         assertThat(model.getUserEmail()).isEqualTo("lazy-spending-by-id@example.com");
     }
+
+    @Test
+    @DisplayName("updateSpending: возвращает модель с именами связей, LazyInitializationException не выбрасывается")
+    void updateSpending_mapsAssociations_withoutLazyInitializationException() {
+        var user = testDataUtils.createUser("lazy-spending-update@example.com", "sheet-lazy-update");
+        var category = testDataUtils.createCategory(user, "Я");
+        var subCategory = testDataUtils.createSubCategory(user, category, "Уход");
+        var spending = testDataUtils.createSpending(user, category, new BigDecimal("100.00"), "Initial");
+
+        var model = spendingDataService.findById(spending.getId());
+        model.setAmount(new BigDecimal("1800.00"));
+        model.setCategoryId(category.getId());
+        model.setSubcategoryId(subCategory.getId());
+        model.setUserEmail(user.getEmail());
+
+        var updated = spendingDataService.updateSpending(spending.getId(), model);
+
+        assertThat(updated.getAmount()).isEqualByComparingTo("1800.00");
+        assertThat(updated.getCategoryName()).isEqualTo("Я");
+        assertThat(updated.getSubcategoryName()).isEqualTo("Уход");
+        assertThat(updated.getUserEmail()).isEqualTo("lazy-spending-update@example.com");
+    }
 }

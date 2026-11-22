@@ -75,6 +75,44 @@ public class SpendingControllerTest extends BaseSpringBootTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("должен обновить трату с подкатегорией")
+    public void testUpdateSpending_withSubCategory() {
+        var user = testDataUtils.createUser("update-subcategory@example.com", "sheet123");
+        var category = testDataUtils.createCategory(user, "Я");
+        var subCategory = testDataUtils.createSubCategory(user, category, "Уход");
+        var spending = testDataUtils.createSpending(user, category, new BigDecimal("100.00"), "Initial");
+        Long spendingId = spending.getId();
+
+        String updateJson = "{\"amount\":1800.00,\"categoryId\":" + category.getId()
+                + ",\"subcategoryId\":" + subCategory.getId()
+                + ",\"date\":\"2026-11-18\",\"description\":\"Сыворотка\"}";
+        mockMvc.perform(put("/api/v1/spending/" + spendingId)
+                        .header(X_USER_EMAIL_HEADER, "update-subcategory@example.com")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(1800.00))
+                .andExpect(jsonPath("$.subcategoryName").value("Уход"));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("должен вернуть 404 при попытке обновить чужую трату")
+    public void testUpdateSpending_anotherUser_notFound() {
+        var owner = testDataUtils.createUser("spending-owner@example.com", "sheet123");
+        var category = testDataUtils.createCategory(owner, "Food");
+        var spending = testDataUtils.createSpending(owner, category, new BigDecimal("100.00"), "Initial");
+
+        String updateJson = "{\"amount\":200.00,\"categoryId\":" + category.getId() + "}";
+        mockMvc.perform(put("/api/v1/spending/" + spending.getId())
+                        .header(X_USER_EMAIL_HEADER, "intruder@example.com")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
     @DisplayName("должен вернуть 404 Not Found при удалении несуществующей траты")
     public void testDeleteSpending_notFound() {
         mockMvc.perform(delete("/api/v1/spending/999")
