@@ -20,6 +20,12 @@ services:
       - LOGSTASH_ENABLED=true
     working_dir: /app
     command: java -jar /app.jar
+    healthcheck:
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/5222; printf "GET /actuator/health HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3; grep -q "\"status\":\"UP\"" <&3']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
     extra_hosts:
       - "host.docker.internal:host-gateway"  # ← Доступ к БД на хосте
     networks:
@@ -31,6 +37,7 @@ services:
     image: graylog/graylog:5.2
     container_name: graylog
     restart: always
+    mem_limit: 1536m
     ports:
       - "127.0.0.1:9000:9000"              # Web UI - только localhost
       - "0.0.0.0:5223:9000"                # Web UI - внешний доступ на порт 5223
@@ -61,6 +68,7 @@ services:
     image: opensearchproject/opensearch:2.11.0
     container_name: graylog-opensearch
     restart: always
+    mem_limit: 1536m
     environment:
       - discovery.type=single-node
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
@@ -105,7 +113,7 @@ services:
       - spending-tracker-network
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.13.1
     container_name: node-exporter
     restart: always
     ports:
