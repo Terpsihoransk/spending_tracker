@@ -38,13 +38,6 @@ public class CategoryDataService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
-    @Transactional(readOnly = true)
-    public CategoryModel findById(Long id) {
-        return categoryRepository.findById(id)
-                .map(categoryMapper::toModel)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
-    }
-
     @Transactional
     public CategoryModel save(CategoryModel categoryModel) {
         var category = categoryMapper.toEntity(categoryModel);
